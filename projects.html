@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Мои проекты</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+        
+        #logout {
+            padding: 8px 16px;
+            background-color: #ff4444;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        
+        #projects-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        
+        .project-card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+    </style>
+    <script type="module">
+        import { supabase } from '../supabase.js'
+        
+        // Проверка авторизации
+        const session = JSON.parse(localStorage.getItem('auth')) || 
+                       JSON.parse(sessionStorage.getItem('auth'))
+        
+        if (!session) {
+            window.location.href = '/index.html'
+        }
+        
+        // Загрузка проектов
+        async function loadProjects() {
+            const { data: projects, error } = await supabase
+                .from('projects')
+                .select('*')
+                .eq('user_id', session.user.id)
+                
+            if (error) {
+                console.error('Ошибка загрузки:', error)
+                alert('Ошибка загрузки проектов')
+                return
+            }
+            
+            const container = document.getElementById('projects-container')
+            if (projects.length === 0) {
+                container.innerHTML = '<p>У вас пока нет проектов</p>'
+            } else {
+                projects.forEach(project => {
+                    container.innerHTML += `
+                        <div class="project-card">
+                            <h3>${project.title}</h3>
+                            <p>Тип: ${project.project_type}</p>
+                            <p>Сроки: ${new Date(project.start_date).toLocaleDateString()} - ${new Date(project.end_date).toLocaleDateString()}</p>
+                        </div>
+                    `
+                })
+            }
+        }
+        
+        // Инициализация
+        document.addEventListener('DOMContentLoaded', () => {
+            loadProjects()
+            document.getElementById('logout').addEventListener('click', async () => {
+                await supabase.auth.signOut()
+                localStorage.removeItem('auth')
+                sessionStorage.removeItem('auth')
+                window.location.href = '/index.html'
+            })
+        })
+    </script>
+</head>
+<body>
+    <header>
+        <h1>Мои проекты</h1>
+        <button id="logout">Выйти</button>
+    </header>
+    <div id="projects-container"></div>
+</body>
+</html>
