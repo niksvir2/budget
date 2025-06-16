@@ -3,75 +3,475 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Мои проекты</title>
+    <title>Управление проектами</title>
     <style>
         body {
             font-family: Arial, sans-serif;
             margin: 0;
-            padding: 20px;
+            padding: 0;
+            display: flex;
+            min-height: 100vh;
             background-color: #f5f5f5;
         }
         
-        header {
+        /* Боковая панель */
+        .sidebar {
+            width: 250px;
+            background-color: #2c3e50;
+            color: white;
+            padding: 20px 0;
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            position: fixed;
+        }
+        
+        .sidebar-header {
+            padding: 0 20px 20px;
+            border-bottom: 1px solid #34495e;
+            margin-bottom: 20px;
+        }
+        
+        .sidebar-header h2 {
+            margin: 0;
+            color: white;
+            font-size: 20px;
+        }
+        
+        .nav-links {
+            flex-grow: 1;
+        }
+        
+        .nav-link {
+            display: block;
+            padding: 12px 20px;
+            color: #ecf0f1;
+            text-decoration: none;
+            transition: background-color 0.3s;
+        }
+        
+        .nav-link:hover {
+            background-color: #34495e;
+        }
+        
+        .nav-link.active {
+            background-color: #3498db;
+            color: white;
+        }
+        
+        .logout-btn {
+            padding: 12px 20px;
+            background-color: #e74c3c;
+            color: white;
+            border: none;
+            text-align: left;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            margin: 20px;
+            border-radius: 4px;
+        }
+        
+        .logout-btn:hover {
+            background-color: #c0392b;
+        }
+        
+        /* Основной контент */
+        .main-content {
+            margin-left: 250px;
+            flex-grow: 1;
+            padding: 30px;
+            background-color: white;
+            min-height: 100vh;
+        }
+        
+        .content-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 30px;
-            padding: 15px;
-            background-color: white;
-            border-radius: 8px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            padding-bottom: 20px;
+            border-bottom: 1px solid #eee;
         }
         
-        #logout {
-            padding: 8px 16px;
-            background-color: #ff4444;
+        .content-header h1 {
+            margin: 0;
+            font-size: 24px;
+            color: #333;
+        }
+        
+        .new-project-btn {
+            padding: 10px 20px;
+            background-color: #3498db;
             color: white;
             border: none;
             border-radius: 4px;
-            font-size: 14px;
             cursor: pointer;
             transition: background-color 0.3s;
         }
         
-        #logout:hover {
-            background-color: #cc0000;
+        .new-project-btn:hover {
+            background-color: #2980b9;
         }
         
-        #projects-container {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-            gap: 20px;
-        }
-        
-        .project-card {
-            background: white;
+        .projects-section {
+            border: 1px solid #eee;
             border-radius: 8px;
             padding: 20px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-top: 20px;
         }
         
-        .project-card h3 {
-            margin-top: 0;
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .section-header h2 {
+            margin: 0;
+            font-size: 18px;
             color: #333;
         }
         
         .no-projects {
-            background: white;
-            padding: 20px;
-            border-radius: 8px;
             text-align: center;
+            padding: 40px 0;
             color: #666;
+        }
+        
+        .create-first-btn {
+            padding: 10px 20px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: background-color 0.3s;
+        }
+        
+        .create-first-btn:hover {
+            background-color: #2980b9;
+        }
+        
+        /* Стили для списка проектов */
+        .projects-list {
+            display: grid;
+            gap: 20px;
+        }
+
+        .project-card {
+            border: 1px solid #eee;
+            border-radius: 8px;
+            padding: 20px;
+            transition: box-shadow 0.3s;
+            cursor: pointer;
+        }
+
+        .project-card:hover {
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .project-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .project-title {
+            margin: 0;
+            font-size: 18px;
+            color: #3498db;
+        }
+
+        .project-type {
+            padding: 4px 8px;
+            background-color: #f1f1f1;
+            border-radius: 4px;
+            font-size: 12px;
+            color: #333;
+        }
+
+        .project-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .detail-item {
+            margin: 0;
+        }
+
+        .detail-label {
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .detail-value {
+            font-size: 14px;
+            color: #333;
+            font-weight: 500;
+        }
+
+        /* Стили для модального окна */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 250px;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0,0,0,0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            width: 80%;
+            max-width: 800px;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .modal-title {
+            margin: 0;
+            font-size: 24px;
+            color: #333;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #666;
+        }
+
+        .modal-section {
+            margin-bottom: 25px;
+        }
+
+        .modal-section h3 {
+            margin: 0 0 15px 0;
+            color: #3498db;
+            font-size: 18px;
+        }
+
+        .modal-section p {
+            margin: 0 0 10px 0;
+            line-height: 1.5;
+            white-space: pre-line;
         }
     </style>
 </head>
 <body>
-    <header>
-        <h1>Мои проекты</h1>
-        <button id="logout">Выйти</button>
-    </header>
+    <!-- Боковая панель -->
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <h2>Управление проектами</h2>
+        </div>
+        
+        <div class="nav-links">
+            <a href="#" class="nav-link" id="dashboard-link">Панель управления</a>
+            <a href="#" class="nav-link active" id="projects-link">Мои проекты</a>
+            <a href="#" class="nav-link" id="profile-link">Мой профиль</a>
+            <a href="#" class="nav-link" id="settings-link">Настройки</a>
+        </div>
+        
+        <button class="logout-btn" id="logout">Выйти</button>
+    </div>
     
-    <div id="projects-container"></div>
+    <!-- Основной контент - Панель управления -->
+    <div class="main-content" id="dashboard-content">
+        <div class="content-header">
+            <h1>Панель управления</h1>
+            <button class="new-project-btn" id="new-project-btn">Создать новый проект</button>
+        </div>
+        
+        <div class="projects-section">
+            <div class="section-header">
+                <h2>Последние проекты</h2>
+            </div>
+            
+            <div class="no-projects">
+                <p>У вас пока нет созданных проектов</p>
+                <button class="create-first-btn" id="create-first-btn">Создать первый проект</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Форма создания проекта -->
+    <div class="main-content create-project-container" id="create-project-content">
+        <div class="create-project-header">
+            <h1>Создание нового проекта</h1>
+            <p>Заполните форму для создания нового проекта</p>
+        </div>
+        
+        <!-- Основная информация -->
+        <div class="form-section">
+            <div class="form-section-header">
+                <h2>Основная информация</h2>
+                <p>Укажите основные параметры проекта</p>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="project-type">Тип проекта</label>
+                    <select id="project-type">
+                        <option value="">Выберите тип проекта</option>
+                        <option value="research">Исследовательский</option>
+                        <option value="development">Разработка</option>
+                        <option value="education">Образовательный</option>
+                        <option value="social">Социальный</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="project-name">Название проекта</label>
+                    <input type="text" id="project-name" placeholder="Введите название проекта">
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="project-description">Описание проекта</label>
+                <textarea id="project-description" placeholder="Опишите ваш проект"></textarea>
+            </div>
+            
+            <div class="form-group">
+                <label for="project-geography">География проекта</label>
+                <input type="text" id="project-geography" placeholder="Укажите географию проекта">
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="start-date">Дата начала реализации</label>
+                    <input type="date" id="start-date">
+                </div>
+                
+                <div class="form-group">
+                    <label for="end-date">Дата окончания реализации</label>
+                    <input type="date" id="end-date">
+                </div>
+            </div>
+        </div>
+        
+        <!-- Содержание проекта -->
+        <div class="form-section">
+            <div class="form-section-header">
+                <h2>Содержание проекта</h2>
+                <p>Детальная информация о целях и результатах проекта</p>
+            </div>
+            
+            <div class="form-group">
+                <label for="project-goal">Цель проекта</label>
+                <textarea id="project-goal" placeholder="Сформулируйте основную цель проекта"></textarea>
+            </div>
+            
+            <div class="form-group">
+                <label for="project-results">Ожидаемые результаты проекта</label>
+                <textarea id="project-results" placeholder="Опишите ожидаемые результаты"></textarea>
+            </div>
+            
+            <div class="form-group">
+                <label for="project-tasks">Задачи проекта</label>
+                <textarea id="project-tasks" placeholder="Перечислите основные задачи проекта"></textarea>
+            </div>
+        </div>
+        
+        <!-- Дополнительная информация -->
+        <div class="form-section">
+            <div class="form-section-header">
+                <h2>Дополнительная информация</h2>
+                <p>Необязательные, но полезные данные о проекте</p>
+            </div>
+            
+            <div class="form-group">
+                <label for="project-partners">Партнеры проекта</label>
+                <textarea id="project-partners" placeholder="Укажите партнеров проекта (если есть)"></textarea>
+            </div>
+            
+            <div class="form-group">
+                <label for="project-development">Дальнейшее развитие проекта</label>
+                <textarea id="project-development" placeholder="Опишите перспективы развития проекта"></textarea>
+            </div>
+            
+            <div class="form-group">
+                <label for="project-resources">Источники ресурсного обеспечения проекта</label>
+                <textarea id="project-resources" placeholder="Укажите источники финансирования и другие ресурсы"></textarea>
+            </div>
+        </div>
+        
+        <!-- Кнопки действий -->
+        <div class="form-actions">
+            <button class="cancel-btn" id="cancel-project-btn">Отмена</button>
+            <button class="submit-btn" id="submit-project-btn">Создать проект</button>
+        </div>
+    </div>
+    
+    <!-- Список проектов -->
+    <div class="main-content" id="projects-list-content">
+        <div class="content-header">
+            <h1>Мои проекты</h1>
+            <button class="new-project-btn" id="new-project-btn-list">Создать новый проект</button>
+        </div>
+        
+        <div class="projects-section">
+            <div id="projects-container">
+                <div class="no-projects">
+                    <p>Загрузка проектов...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Модальное окно для просмотра проекта -->
+    <div id="project-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title" id="modal-project-title">Название проекта</h2>
+                <button class="close-btn" id="close-modal">&times;</button>
+            </div>
+            
+            <div class="modal-section">
+                <h3>Основная информация</h3>
+                <p><strong>Тип проекта:</strong> <span id="modal-project-type"></span></p>
+                <p><strong>Описание:</strong> <span id="modal-project-description"></span></p>
+                <p><strong>География:</strong> <span id="modal-project-geography"></span></p>
+                <p><strong>Дата начала:</strong> <span id="modal-project-start-date"></span></p>
+                <p><strong>Дата окончания:</strong> <span id="modal-project-end-date"></span></p>
+            </div>
+            
+            <div class="modal-section">
+                <h3>Содержание проекта</h3>
+                <p><strong>Цель проекта:</strong> <span id="modal-project-goal"></span></p>
+                <p><strong>Ожидаемые результаты:</strong> <span id="modal-project-results"></span></p>
+                <p><strong>Задачи проекта:</strong> <span id="modal-project-tasks"></span></p>
+            </div>
+            
+            <div class="modal-section">
+                <h3>Дополнительная информация</h3>
+                <p><strong>Партнеры:</strong> <span id="modal-project-partners"></span></p>
+                <p><strong>Дальнейшее развитие:</strong> <span id="modal-project-development"></span></p>
+                <p><strong>Ресурсы:</strong> <span id="modal-project-resources"></span></p>
+            </div>
+        </div>
+    </div>
 
     <script type="module">
         import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
@@ -82,69 +482,28 @@
         const supabase = createClient(supabaseUrl, supabaseKey)
         
         // Проверка авторизации
-async function checkAuth() {
-    // Сначала проверяем локальное хранилище
-    const session = JSON.parse(localStorage.getItem('auth')) || JSON.parse(sessionStorage.getItem('auth'))
-    
-    if (!session) {
-        window.location.href = 'index.html'
-        return
-    }
-    
-    // Проверяем валидность сессии с сервером
-    try {
-        const { data, error } = await supabase.auth.getUser(session.access_token)
-        
-        if (error) {
-            localStorage.removeItem('auth')
-            sessionStorage.removeItem('auth')
-            window.location.href = 'index.html'
-            return
-        }
-        
-        // Сессия валидна, продолжаем загрузку
-        loadProjects()
-    } catch (error) {
-        console.error('Ошибка проверки авторизации:', error)
-        window.location.href = 'index.html'
-    }
-}
-
-// Заменяем вызов loadProjects на checkAuth
-document.addEventListener('DOMContentLoaded', checkAuth)
-        
-        // Загрузка проектов
-        async function loadProjects() {
-            const projectsContainer = document.getElementById('projects-container')
-            projectsContainer.innerHTML = '<div class="no-projects">Загрузка...</div>'
+        async function checkAuth() {
+            const session = JSON.parse(localStorage.getItem('auth')) || JSON.parse(sessionStorage.getItem('auth'))
+            
+            if (!session) {
+                window.location.href = 'index.html'
+                return null
+            }
             
             try {
-                const { data: projects, error } = await supabase
-                    .from('projects')
-                    .select('*')
-                    .eq('user_id', session.user.id)
-                    
-                if (error) throw error
+                const { data, error } = await supabase.auth.getUser(session.access_token)
                 
-                if (projects.length === 0) {
-                    projectsContainer.innerHTML = '<div class="no-projects">У вас пока нет проектов</div>'
-                } else {
-                    projectsContainer.innerHTML = ''
-                    projects.forEach(project => {
-                        const projectCard = document.createElement('div')
-                        projectCard.className = 'project-card'
-                        projectCard.innerHTML = `
-                            <h3>${project.title || 'Без названия'}</h3>
-                            <p>Тип: ${project.project_type || 'Не указан'}</p>
-                            <p>Сроки: ${formatDate(project.start_date)} - ${formatDate(project.end_date)}</p>
-                            <p>Бюджет: ${project.budget || '0'} руб.</p>
-                        `
-                        projectsContainer.appendChild(projectCard)
-                    })
+                if (error) {
+                    localStorage.removeItem('auth')
+                    sessionStorage.removeItem('auth')
+                    window.location.href = 'index.html'
+                    return null
                 }
+                return data.user
             } catch (error) {
-                console.error('Ошибка загрузки проектов:', error)
-                projectsContainer.innerHTML = '<div class="no-projects">Ошибка загрузки проектов</div>'
+                console.error('Ошибка проверки авторизации:', error)
+                window.location.href = 'index.html'
+                return null
             }
         }
         
@@ -155,20 +514,238 @@ document.addEventListener('DOMContentLoaded', checkAuth)
             return date.toLocaleDateString('ru-RU')
         }
         
-        // Выход из системы
-        document.getElementById('logout').addEventListener('click', async () => {
+        // Загрузка проектов пользователя
+        async function loadUserProjects(userId) {
+            const projectsContainer = document.getElementById('projects-container')
+            projectsContainer.innerHTML = '<div class="no-projects"><p>Загрузка проектов...</p></div>'
+            
             try {
-                await supabase.auth.signOut()
-                localStorage.removeItem('auth')
-                sessionStorage.removeItem('auth')
-                window.location.href = 'index.html'
+                const { data: projects, error } = await supabase
+                    .from('projects')
+                    .select('*')
+                    .eq('user_id', userId)
+                    .order('created_at', { ascending: false })
+                
+                if (error) throw error
+                
+                if (projects.length === 0) {
+                    projectsContainer.innerHTML = `
+                        <div class="no-projects">
+                            <p>У вас пока нет проектов</p>
+                            <button class="create-first-btn" id="create-first-btn-list">Создать первый проект</button>
+                        </div>
+                    `
+                } else {
+                    projectsContainer.innerHTML = `
+                        <div class="projects-list">
+                            ${projects.map(project => `
+                                <div class="project-card" data-project-id="${project.id}">
+                                    <div class="project-header">
+                                        <h3 class="project-title">${project.title || 'Без названия'}</h3>
+                                        <span class="project-type">${project.project_type || 'Не указан'}</span>
+                                    </div>
+                                    <div class="project-details">
+                                        <div class="detail-item">
+                                            <div class="detail-label">Начало</div>
+                                            <div class="detail-value">${formatDate(project.start_date)}</div>
+                                        </div>
+                                        <div class="detail-item">
+                                            <div class="detail-label">Окончание</div>
+                                            <div class="detail-value">${formatDate(project.end_date)}</div>
+                                        </div>
+                                        <div class="detail-item">
+                                            <div class="detail-label">География</div>
+                                            <div class="detail-value">${project.geography || 'Не указана'}</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    `
+
+                    // Добавляем обработчики клика на карточки проектов
+                    document.querySelectorAll('.project-card').forEach(card => {
+                        card.addEventListener('click', (e) => {
+                            const projectId = card.getAttribute('data-project-id')
+                            const project = projects.find(p => p.id == projectId)
+                            if (project) {
+                                showProjectDetails(project)
+                            }
+                        })
+                    })
+                }
             } catch (error) {
-                console.error('Ошибка выхода:', error)
+                console.error('Ошибка загрузки проектов:', error)
+                projectsContainer.innerHTML = `
+                    <div class="no-projects">
+                        <p>Ошибка загрузки проектов</p>
+                    </div>
+                `
             }
-        })
+        }
+        
+        // Показ модального окна с деталями проекта
+        function showProjectDetails(project) {
+            const modal = document.getElementById('project-modal')
+            
+            // Заполняем модальное окно данными проекта
+            document.getElementById('modal-project-title').textContent = project.title || 'Без названия'
+            document.getElementById('modal-project-type').textContent = project.project_type || 'Не указан'
+            document.getElementById('modal-project-description').textContent = project.description || 'Не указано'
+            document.getElementById('modal-project-geography').textContent = project.geography || 'Не указана'
+            document.getElementById('modal-project-start-date').textContent = formatDate(project.start_date)
+            document.getElementById('modal-project-end-date').textContent = formatDate(project.end_date)
+            document.getElementById('modal-project-goal').textContent = project.goal || 'Не указана'
+            document.getElementById('modal-project-results').textContent = project.expected_results || 'Не указаны'
+            document.getElementById('modal-project-tasks').textContent = project.tasks || 'Не указаны'
+            document.getElementById('modal-project-partners').textContent = project.partners || 'Не указаны'
+            document.getElementById('modal-project-development').textContent = project.future_development || 'Не указано'
+            document.getElementById('modal-project-resources').textContent = project.resources || 'Не указаны'
+
+            // Показываем модальное окно
+            modal.style.display = 'flex'
+        }
+        
+        // Переключение между разделами
+        function showSection(sectionId) {
+            const sections = ['dashboard-content', 'create-project-content', 'projects-list-content']
+            sections.forEach(id => {
+                document.getElementById(id).style.display = id === sectionId ? 'block' : 'none'
+            })
+            
+            // Обновляем активную ссылку в навигации
+            const navLinks = ['dashboard-link', 'projects-link', 'profile-link', 'settings-link']
+            navLinks.forEach(id => {
+                const link = document.getElementById(id)
+                if (link) {
+                    link.classList.toggle('active', id === `${sectionId.replace('-content', '-link')}`)
+                }
+            })
+            
+            // Если показываем список проектов - загружаем их
+            if (sectionId === 'projects-list-content') {
+                checkAuth().then(user => {
+                    if (user) loadUserProjects(user.id)
+                })
+            }
+        }
         
         // Инициализация
-        document.addEventListener('DOMContentLoaded', loadProjects)
+        document.addEventListener('DOMContentLoaded', async () => {
+            const user = await checkAuth()
+            if (!user) return
+            
+            // Настройка обработчиков навигации
+            document.getElementById('dashboard-link').addEventListener('click', (e) => {
+                e.preventDefault()
+                showSection('dashboard-content')
+            })
+            
+            document.getElementById('projects-link').addEventListener('click', (e) => {
+                e.preventDefault()
+                showSection('projects-list-content')
+            })
+            
+            // Обработчики кнопок создания проекта
+            document.getElementById('new-project-btn').addEventListener('click', () => {
+                showSection('create-project-content')
+            })
+            
+            document.getElementById('new-project-btn-list').addEventListener('click', () => {
+                showSection('create-project-content')
+            })
+            
+            document.getElementById('create-first-btn').addEventListener('click', () => {
+                showSection('create-project-content')
+            })
+            
+            // Обработчик для кнопки в списке проектов (если нет проектов)
+            document.addEventListener('click', (e) => {
+                if (e.target.id === 'create-first-btn-list') {
+                    showSection('create-project-content')
+                }
+            })
+            
+            // Обработчик кнопки отмены
+            document.getElementById('cancel-project-btn').addEventListener('click', () => {
+                showSection('projects-list-content')
+            })
+            
+            // Обработчик кнопки создания проекта
+            document.getElementById('submit-project-btn').addEventListener('click', async () => {
+                const user = await checkAuth()
+                if (!user) return
+                
+                // Собираем данные из формы
+                const projectData = {
+                    user_id: user.id,
+                    project_type: document.getElementById('project-type').value,
+                    title: document.getElementById('project-name').value,
+                    description: document.getElementById('project-description').value,
+                    geography: document.getElementById('project-geography').value,
+                    start_date: document.getElementById('start-date').value,
+                    end_date: document.getElementById('end-date').value,
+                    goal: document.getElementById('project-goal').value,
+                    expected_results: document.getElementById('project-results').value,
+                    tasks: document.getElementById('project-tasks').value,
+                    partners: document.getElementById('project-partners').value,
+                    future_development: document.getElementById('project-development').value,
+                    resources: document.getElementById('project-resources').value
+                }
+                
+                // Валидация обязательных полей
+                if (!projectData.project_type || !projectData.title || !projectData.description || 
+                    !projectData.geography || !projectData.start_date || !projectData.end_date || 
+                    !projectData.goal || !projectData.expected_results || !projectData.tasks) {
+                    alert('Пожалуйста, заполните все обязательные поля')
+                    return
+                }
+                
+                try {
+                    // Сохраняем проект в базу данных
+                    const { data, error } = await supabase
+                        .from('projects')
+                        .insert([projectData])
+                        .select()
+                    
+                    if (error) throw error
+                    
+                    alert('Проект успешно создан!')
+                    showSection('projects-list-content')
+                    
+                } catch (error) {
+                    console.error('Ошибка при создании проекта:', error)
+                    alert('Произошла ошибка при создании проекта: ' + error.message)
+                }
+            })
+            
+            // Закрытие модального окна
+            document.getElementById('close-modal').addEventListener('click', () => {
+                document.getElementById('project-modal').style.display = 'none'
+            })
+            
+            // Закрытие модального окна при клике вне его
+            document.getElementById('project-modal').addEventListener('click', (e) => {
+                if (e.target === document.getElementById('project-modal')) {
+                    document.getElementById('project-modal').style.display = 'none'
+                }
+            })
+            
+            // Обработчик выхода из системы
+            document.getElementById('logout').addEventListener('click', async () => {
+                try {
+                    await supabase.auth.signOut()
+                    localStorage.removeItem('auth')
+                    sessionStorage.removeItem('auth')
+                    window.location.href = 'index.html'
+                } catch (error) {
+                    console.error('Ошибка выхода:', error)
+                }
+            })
+            
+            // По умолчанию показываем список проектов
+            showSection('projects-list-content')
+        })
     </script>
 </body>
 </html>
