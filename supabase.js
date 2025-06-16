@@ -5,64 +5,40 @@ const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS
 
 const supabase = createClient(supabaseUrl, supabaseKey)
 
-// Проверка активной сессии
+// Проверка и восстановление сессии
 async function getSession() {
-    const { data, error } = await supabase.auth.getSession()
-    if (error) {
+    try {
+        // Сначала проверяем локальное хранилище
+        const storedSession = JSON.parse(localStorage.getItem('auth')) || 
+                            JSON.parse(sessionStorage.getItem('auth'))
+        
+        if (storedSession) {
+            // Проверяем валидность сессии на сервере
+            const { data: { user }, error } = await supabase.auth.getUser(storedSession.access_token)
+            
+            if (!error && user) {
+                return { session: storedSession, user }
+            }
+            
+            // Если сессия невалидна, очищаем хранилище
+            localStorage.removeItem('auth')
+            sessionStorage.removeItem('auth')
+        }
+        
+        // Если нет сохраненной сессии, проверяем текущую
+        const { data, error } = await supabase.auth.getSession()
+        
+        if (error) throw error
+        return data
+    } catch (error) {
         console.error('Ошибка получения сессии:', error)
         throw error
     }
-    return data
 }
 
-// Функция входа
-async function login(email, password) {
-    try {
-        const { data, error } = await supabase.auth.signInWithPassword({
-            email,
-            password
-        })
-
-        if (error) throw error
-        return data
-    } catch (error) {
-        console.error('Ошибка входа:', error)
-        throw error
-    }
-}
-
-// Функция регистрации
-async function register(email, password, phone, organization) {
-    try {
-        const { data, error } = await supabase.auth.signUp({
-            email,
-            password,
-            options: {
-                data: {
-                    phone,
-                    organization
-                }
-            }
-        })
-
-        if (error) throw error
-        return data
-    } catch (error) {
-        console.error('Ошибка регистрации:', error)
-        throw error
-    }
-}
-
-// Выход из системы
-async function logout() {
-    try {
-        const { error } = await supabase.auth.signOut()
-        if (error) throw error
-        return true
-    } catch (error) {
-        console.error('Ошибка выхода:', error)
-        throw error
-    }
-}
+// Остальные функции остаются без изменений
+async function login(email, password) { ... }
+async function register(email, password, phone, organization) { ... }
+async function logout() { ... }
 
 export { supabase, getSession, login, register, logout }

@@ -82,11 +82,36 @@
         const supabase = createClient(supabaseUrl, supabaseKey)
         
         // Проверка авторизации
-        const session = JSON.parse(localStorage.getItem('auth')) || JSON.parse(sessionStorage.getItem('auth'))
+async function checkAuth() {
+    // Сначала проверяем локальное хранилище
+    const session = JSON.parse(localStorage.getItem('auth')) || JSON.parse(sessionStorage.getItem('auth'))
+    
+    if (!session) {
+        window.location.href = 'index.html'
+        return
+    }
+    
+    // Проверяем валидность сессии с сервером
+    try {
+        const { data, error } = await supabase.auth.getUser(session.access_token)
         
-        if (!session) {
+        if (error) {
+            localStorage.removeItem('auth')
+            sessionStorage.removeItem('auth')
             window.location.href = 'index.html'
+            return
         }
+        
+        // Сессия валидна, продолжаем загрузку
+        loadProjects()
+    } catch (error) {
+        console.error('Ошибка проверки авторизации:', error)
+        window.location.href = 'index.html'
+    }
+}
+
+// Заменяем вызов loadProjects на checkAuth
+document.addEventListener('DOMContentLoaded', checkAuth)
         
         // Загрузка проектов
         async function loadProjects() {

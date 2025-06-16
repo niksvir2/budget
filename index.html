@@ -115,6 +115,14 @@
             display: none;
         }
     </style>
+	<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  // Глобальная инициализация Supabase
+  window.supabase = supabase.createClient(
+    'https://ijksnxqnabykqjvqeoud.supabase.co',
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imlqa3NueHFuYWJ5a3FqdnFlb3VkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDkwNDI0MzMsImV4cCI6MjA2NDYxODQzM30.TXQO0z4iEP95eVVwirdEwww0BWJyPmKKg_DSC4SSr9Q'
+  );
+</script>
 </head>
 <body>
     <div class="container">
@@ -161,15 +169,26 @@
 
         // Проверка активной сессии
         async function checkSession() {
-            try {
-                const { data: { session } } = await supabase.auth.getSession()
-                if (session) {
-                    window.location.href = 'projects.html'
-                }
-            } catch (error) {
-                console.error('Ошибка проверки сессии:', error)
-            }
+    try {
+        const { data: { session }, error } = await supabase.auth.getSession()
+        
+        if (error) {
+            console.error('Ошибка проверки сессии:', error)
+            return
         }
+        
+        if (session) {
+            // Сохраняем сессию в соответствующее хранилище
+            const rememberMe = localStorage.getItem('rememberMe') === 'true'
+            const storage = rememberMe ? localStorage : sessionStorage
+            storage.setItem('auth', JSON.stringify(session))
+            
+            window.location.href = 'projects.html'
+        }
+    } catch (error) {
+        console.error('Ошибка проверки сессии:', error)
+    }
+}
 
         // Валидация email
         function validateEmail(email) {
