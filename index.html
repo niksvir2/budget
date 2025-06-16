@@ -96,7 +96,8 @@
         .register-link a:hover {
             text-decoration: underline;
         }
-		.remember-me {
+        
+        .remember-me {
             display: flex;
             align-items: center;
             margin-bottom: 20px;
@@ -106,79 +107,14 @@
             width: auto;
             margin-right: 10px;
         }
-     </style>
-   <script type="module">
-   <meta http-equiv="Content-Security-Policy" content="default-src 'self' https://ijksnxqnabykqjvqeoud.supabase.co; connect-src 'self' https://ijksnxqnabykqjvqeoud.supabase.co">
-  import { login, getSession } from './supabase.js'
-
-  // Проверяем активную сессию при загрузке
-  document.addEventListener('DOMContentLoaded', async () => {
-    const { data } = await getSession()
-    if (data?.session) {
-      window.location.href = 'projects.html'
-    }
-  })
-
-  document.getElementById('loginForm').addEventListener('submit', async (e) => {
-    e.preventDefault()
-    
-    const email = document.getElementById('email').value.trim()
-    const password = document.getElementById('password').value.trim()
-    const rememberMe = document.getElementById('rememberMe').checked
-
-    // Валидация
-    if (!validateEmail(email) || !validatePassword(password)) return
-
-    const submitBtn = e.target.querySelector('button[type="submit"]')
-    submitBtn.disabled = true
-    submitBtn.textContent = 'Вход...'
-
-    try {
-      const { data, error } = await login(email, password)
-
-      if (error) {
-        alert(error.message || 'Ошибка входа')
-        return
-      }
-
-      const storage = rememberMe ? localStorage : sessionStorage
-      storage.setItem('auth', JSON.stringify(data.session))
-      
-      window.location.href = 'projects.html'
-      
-    } catch (error) {
-      console.error('Ошибка:', error)
-      alert('Произошла ошибка')
-    } finally {
-      submitBtn.disabled = false
-      submitBtn.textContent = 'Войти'
-    }
-  })
-
-  function validateEmail(email) {
-    if (!email) {
-      alert('Введите email')
-      return false
-    }
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      alert('Введите корректный email')
-      return false
-    }
-    return true
-  }
-
-  function validatePassword(password) {
-    if (!password) {
-      alert('Введите пароль')
-      return false
-    }
-    if (password.length < 6) {
-      alert('Пароль должен содержать минимум 6 символов')
-      return false
-    }
-    return true
-  }
-</script>
+        
+        .error-message {
+            color: #ff4444;
+            font-size: 12px;
+            margin-top: 5px;
+            display: none;
+        }
+    </style>
 </head>
 <body>
     <div class="container">
@@ -192,11 +128,13 @@
                 <div class="input-group">
                     <label for="email">Email</label>
                     <input type="email" id="email" required>
+                    <div id="email-error" class="error-message"></div>
                 </div>
                 
                 <div class="input-group">
                     <label for="password">Пароль</label>
                     <input type="password" id="password" required>
+                    <div id="password-error" class="error-message"></div>
                 </div>
                 
                 <div class="remember-me">
@@ -204,7 +142,7 @@
                     <label for="rememberMe">Запомнить меня</label>
                 </div>
                 
-                <button type="submit">Войти</button>
+                <button type="submit" id="submitBtn">Войти</button>
             </form>
             
             <div class="register-link">
@@ -212,5 +150,106 @@
             </div>
         </div>
     </div>
+
+    <script type="module">
+        // Инициализация Supabase
+        const supabaseUrl = 'https://ijksnxqnabykqjvqeoud.supabase.co'
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imlqa3NueHFuYWJ5a3FqdnFlb3VkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDkwNDI0MzMsImV4cCI6MjA2NDYxODQzM30.TXQO0z4iEP95eVVwirdEwww0BWJyPmKKg_DSC4SSr9Q'
+        
+        // Создаем клиент Supabase
+        const supabase = window.supabase.createClient(supabaseUrl, supabaseKey)
+
+        // Проверка активной сессии
+        async function checkSession() {
+            try {
+                const { data: { session } } = await supabase.auth.getSession()
+                if (session) {
+                    window.location.href = 'projects.html'
+                }
+            } catch (error) {
+                console.error('Ошибка проверки сессии:', error)
+            }
+        }
+
+        // Валидация email
+        function validateEmail(email) {
+            const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+            return re.test(email)
+        }
+
+        // Обработка формы входа
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault()
+            
+            const email = document.getElementById('email').value.trim()
+            const password = document.getElementById('password').value.trim()
+            const rememberMe = document.getElementById('rememberMe').checked
+            const submitBtn = document.getElementById('submitBtn')
+            
+            // Сброс сообщений об ошибках
+            document.getElementById('email-error').style.display = 'none'
+            document.getElementById('password-error').style.display = 'none'
+            
+            // Валидация
+            let isValid = true
+            
+            if (!email) {
+                document.getElementById('email-error').textContent = 'Введите email'
+                document.getElementById('email-error').style.display = 'block'
+                isValid = false
+            } else if (!validateEmail(email)) {
+                document.getElementById('email-error').textContent = 'Введите корректный email'
+                document.getElementById('email-error').style.display = 'block'
+                isValid = false
+            }
+            
+            if (!password) {
+                document.getElementById('password-error').textContent = 'Введите пароль'
+                document.getElementById('password-error').style.display = 'block'
+                isValid = false
+            } else if (password.length < 6) {
+                document.getElementById('password-error').textContent = 'Пароль должен содержать минимум 6 символов'
+                document.getElementById('password-error').style.display = 'block'
+                isValid = false
+            }
+            
+            if (!isValid) return
+            
+            // Блокировка кнопки
+            submitBtn.disabled = true
+            submitBtn.textContent = 'Вход...'
+            
+            try {
+                // Попытка входа
+                const { data, error } = await supabase.auth.signInWithPassword({
+                    email,
+                    password
+                })
+                
+                if (error) throw error
+                
+                // Сохранение сессии
+                const storage = rememberMe ? localStorage : sessionStorage
+                storage.setItem('auth', JSON.stringify(data.session))
+                
+                // Перенаправление
+                window.location.href = 'projects.html'
+                
+            } catch (error) {
+                console.error('Ошибка входа:', error)
+                document.getElementById('password-error').textContent = 'Неверный email или пароль'
+                document.getElementById('password-error').style.display = 'block'
+            } finally {
+                submitBtn.disabled = false
+                submitBtn.textContent = 'Войти'
+            }
+        })
+        
+        // Проверка сессии при загрузке
+        checkSession()
+    </script>
+
+    <!-- Подключаем Supabase JS -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </body>
 </html>
