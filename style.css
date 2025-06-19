@@ -1,3 +1,115 @@
+/* Добавим в начало файла */
+@media (max-width: 768px) {
+    .projects-body {
+        flex-direction: column;
+    }
+    
+    .sidebar {
+        width: 100%;
+        height: auto;
+        position: relative;
+        padding: 10px 0;
+    }
+    
+    .sidebar-header {
+        padding: 0 15px 10px;
+    }
+    
+    .nav-links {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+    
+    .nav-link {
+        padding: 8px 15px;
+        font-size: 14px;
+    }
+    
+    .logout-btn {
+        margin: 10px auto;
+        width: 90%;
+    }
+    
+    .main-content {
+        margin-left: 0;
+        padding: 15px;
+    }
+    
+    .content-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .new-project-btn, .back-btn {
+        margin-top: 10px;
+        width: 100%;
+    }
+    
+    .dashboard-stats {
+        grid-template-columns: 1fr;
+    }
+    
+    .projects-list {
+        grid-template-columns: 1fr;
+    }
+    
+    .project-details {
+        grid-template-columns: 1fr;
+    }
+    
+    .form-row {
+        flex-direction: column;
+        gap: 0;
+    }
+    
+    .project-tabs {
+        overflow-x: auto;
+        white-space: nowrap;
+        padding-bottom: 5px;
+    }
+    
+    .project-tab {
+        padding: 8px 15px;
+        font-size: 14px;
+    }
+    
+    .budget-row {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .budget-row input[type="number"],
+    .budget-row input[type="text"] {
+        width: 100%;
+        margin-right: 0;
+        margin-bottom: 5px;
+    }
+    
+    .remove-row-btn {
+        align-self: flex-end;
+    }
+}
+
+/* Для экранов меньше 480px */
+@media (max-width: 480px) {
+    .login-box, .register-box {
+        padding: 20px 15px;
+    }
+    
+    .title {
+        font-size: 20px;
+        margin-bottom: 20px;
+    }
+    
+    .login-title, .register-title {
+        font-size: 18px;
+    }
+    
+    button {
+        padding: 10px;
+    }
+}
 /* Общие стили для всех страниц */
 body {
     margin: 0;
