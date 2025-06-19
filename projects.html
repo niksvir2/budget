@@ -6,6 +6,11 @@
     <title>Управление проектами</title>
     <link rel="stylesheet" href="style.css">
 </head>
+<style>
+    .main-content {
+        display: none;
+    }
+</style>
 <body class="projects-body">
     <!-- Боковая панель -->
     <div class="sidebar">
@@ -397,562 +402,653 @@
       <script type="module">
         import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
         
-        // Инициализация Supabase
-        const supabaseUrl = 'https://ijksnxqnabykqjvqeoud.supabase.co'
-        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imlqa3NueHFuYWJ5a3FqdnFlb3VkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDkwNDI0MzMsImV4cCI6MjA2NDYxODQzM30.TXQO0z4iEP95eVVwirdEwww0BWJyPmKKg_DSC4SSr9Q'
-        const supabase = createClient(supabaseUrl, supabaseKey)
-        
-        // Текущий просматриваемый проект
-        let currentProject = null;
-        let currentBudgetItems = [];
-        
-        // Проверка авторизации
-        async function checkAuth() {
-            const session = JSON.parse(localStorage.getItem('auth')) || JSON.parse(sessionStorage.getItem('auth'))
-            
-            if (!session) {
-                window.location.href = 'index.html'
-                return null
-            }
-            
-            try {
-                const { data, error } = await supabase.auth.getUser(session.access_token)
-                
-                if (error) {
-                    localStorage.removeItem('auth')
-                    sessionStorage.removeItem('auth')
-                    window.location.href = 'index.html'
-                    return null
-                }
-                return data.user
-            } catch (error) {
-                console.error('Ошибка проверки авторизации:', error)
-                window.location.href = 'index.html'
-                return null
-            }
-        }
-        
-        // Форматирование даты
-        function formatDate(dateString) {
-            if (!dateString) return 'Не указана'
-            const date = new Date(dateString)
-            return date.toLocaleDateString('ru-RU')
-        }
-        
-        // Загрузка проектов пользователя
-        async function loadUserProjects(userId) {
-            const projectsContainer = document.getElementById('projects-container')
-            projectsContainer.innerHTML = '<div class="no-projects"><p>Загрузка проектов...</p></div>'
-            
-            try {
-                const { data: projects, error } = await supabase
-                    .from('projects')
-                    .select('*')
-                    .eq('user_id', userId)
-                    .order('created_at', { ascending: false })
-                
-                if (error) throw error
-                
-                if (projects.length === 0) {
-                    projectsContainer.innerHTML = `
-                        <div class="no-projects">
-                            <p>У вас пока нет проектов</p>
-                            <button class="create-first-btn" id="create-first-btn-list">Создать первый проект</button>
-                        </div>
-                    `
-                } else {
-                    projectsContainer.innerHTML = `
-                        <div class="projects-list">
-                            ${projects.map(project => `
-                                <div class="project-card" data-project-id="${project.id}">
-                                    <div class="project-header">
-                                        <h3 class="project-title">${project.title || 'Без названия'}</h3>
-                                        <span class="project-type">${project.project_type || 'Не указан'}</span>
-                                    </div>
-                                    <div class="project-details">
-                                        <div class="detail-item">
-                                            <div class="detail-label">Начало</div>
-                                            <div class="detail-value">${formatDate(project.start_date)}</div>
-                                        </div>
-                                        <div class="detail-item">
-                                            <div class="detail-label">Окончание</div>
-                                            <div class="detail-value">${formatDate(project.end_date)}</div>
-                                        </div>
-                                        <div class="detail-item">
-                                            <div class="detail-label">География</div>
-                                            <div class="detail-value">${project.geography || 'Не указана'}</div>
-                                        </div>
-                                    </div>
-                                </div>
-                            `).join('')}
-                        </div>
-                    `
+// Инициализация Supabase
+const supabaseUrl = 'https://ijksnxqnabykqjvqeoud.supabase.co'
+const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imlqa3NueHFuYWJ5a3FqdnFlb3VkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDkwNDI0MzMsImV4cCI6MjA2NDYxODQzM30.TXQO0z4iEP95eVVwirdEwww0BWJyPmKKg_DSC4SSr9Q'
+const supabase = createClient(supabaseUrl, supabaseKey)
 
-                    // Добавляем обработчики клика на карточки проектов
-                    document.querySelectorAll('.project-card').forEach(card => {
-                        card.addEventListener('click', (e) => {
-                            const projectId = card.getAttribute('data-project-id')
-                            const project = projects.find(p => p.id == projectId)
-                            if (project) {
-                                showProjectDetails(project)
-                            }
-                        })
-                    })
-                }
-            } catch (error) {
-                console.error('Ошибка загрузки проектов:', error)
-                projectsContainer.innerHTML = `
-                    <div class="no-projects">
-                        <p>Ошибка загрузки проектов</p>
-                    </div>
-                `
-            }
-        }
-        
-        // Загрузка статистики для панели управления
-        async function loadDashboardStats(userId) {
-            try {
-                // Получаем все проекты пользователя
-                const { data: projects, error } = await supabase
-                    .from('projects')
-                    .select('*')
-                    .eq('user_id', userId)
-                
-                if (error) throw error
-                
-                // Текущая дата
-                const today = new Date();
-                
-                // 1. Активные проекты (где текущая дата между start_date и end_date)
-                const activeProjects = projects.filter(project => {
-                    const startDate = new Date(project.start_date);
-                    const endDate = new Date(project.end_date);
-                    return today >= startDate && today <= endDate;
-                });
-                
-                // 2. Проекты с близкими дедлайнами (до окончания осталось <= 7 дней)
-                const upcomingDeadlines = projects.filter(project => {
-                    const endDate = new Date(project.end_date);
-                    const diffTime = endDate - today;
-                    const diffDays = diffTime / (1000 * 60 * 60 * 24);
-                    return diffDays <= 7 && diffDays >= 0;
-                });
-                
-                // 3. Недавно созданные проекты (созданы за последние 7 дней)
-                const recentProjects = projects.filter(project => {
-                    const createdDate = new Date(project.created_at);
-                    const diffTime = today - createdDate;
-                    const diffDays = diffTime / (1000 * 60 * 60 * 24);
-                    return diffDays <= 7;
-                });
-                
-                // Обновляем статистику на странице
-                document.getElementById('active-projects-count').textContent = activeProjects.length;
-                document.getElementById('upcoming-deadlines-count').textContent = upcomingDeadlines.length;
-                document.getElementById('recent-projects-count').textContent = recentProjects.length;
-                
-                // Отображаем последние проекты (например, 5 самых новых)
-                const recentProjectsContainer = document.getElementById('recent-projects-container');
-                const recentProjectsToShow = projects.slice(0, 5);
-                
-                if (recentProjectsToShow.length === 0) {
-                    recentProjectsContainer.innerHTML = `
-                        <div class="no-projects">
-                            <p>У вас пока нет проектов</p>
-                            <button class="create-first-btn" id="create-first-btn-dashboard">Создать первый проект</button>
-                        </div>
-                    `;
-                } else {
-                    recentProjectsContainer.innerHTML = `
-                        <div class="projects-list">
-                            ${recentProjectsToShow.map(project => `
-                                <div class="project-card" data-project-id="${project.id}">
-                                    <div class="project-header">
-                                        <h3 class="project-title">${project.title || 'Без названия'}</h3>
-                                        <span class="project-type">${project.project_type || 'Не указан'}</span>
-                                    </div>
-                                    <div class="project-details">
-                                        <div class="detail-item">
-                                            <div class="detail-label">Начало</div>
-                                            <div class="detail-value">${formatDate(project.start_date)}</div>
-                                        </div>
-                                        <div class="detail-item">
-                                            <div class="detail-label">Окончание</div>
-                                            <div class="detail-value">${formatDate(project.end_date)}</div>
-                                        </div>
-                                        <div class="detail-item">
-                                            <div class="detail-label">География</div>
-                                            <div class="detail-value">${project.geography || 'Не указана'}</div>
-                                        </div>
-                                    </div>
-                                </div>
-                            `).join('')}
-                        </div>
-                    `;
+// Текущий просматриваемый проект
+let currentProject = null;
+let budgetCategories = [];
+let budgetItems = [];
 
-                    // Добавляем обработчики клика на карточки проектов
-                    document.querySelectorAll('#recent-projects-container .project-card').forEach(card => {
-                        card.addEventListener('click', (e) => {
-                            const projectId = card.getAttribute('data-project-id')
-                            const project = recentProjectsToShow.find(p => p.id == projectId)
-                            if (project) {
-                                showProjectDetails(project)
-                            }
-                        })
-                    })
-                }
-                
-            } catch (error) {
-                console.error('Ошибка загрузки статистики:', error);
-                document.getElementById('dashboard-stats').innerHTML = `
-                    <div class="no-projects">
-                        <p>Ошибка загрузки статистики</p>
-                    </div>
-                `;
-            }
-        }
-        
-        // Загрузка данных бюджета для проекта
-        async function loadProjectBudget(projectId) {
-            try {
-                const { data, error } = await supabase
-                    .from('budget_items')
-                    .select('*')
-                    .eq('project_id', projectId)
-                
-                if (error) throw error
-                
-                currentBudgetItems = data || [];
-                renderBudgetItems();
-                calculateTotal();
-            } catch (error) {
-                console.error('Ошибка загрузки бюджета:', error)
-                alert('Ошибка загрузки данных бюджета')
-            }
-        }
-        
-        // Заполнение строк бюджета
-        function fillBudgetRows(type, amounts, comments) {
-            const container = document.getElementById(`${type}-rows`);
-            
-            // Очищаем все строки, кроме первой
-            while (container.children.length > 1) {
-                container.removeChild(container.lastChild);
-            }
-            
-            // Если amounts - это массив, заполняем строки
-            if (Array.isArray(amounts)) {
-                amounts.forEach((amount, index) => {
-                    // Для первой строки используем существующие поля
-                    if (index === 0) {
-                        container.querySelector(`.${type}-amount`).value = amount || '';
-                        container.querySelector(`.${type}-comment`).value = (comments && comments[index]) || '';
-                    } else {
-                        // Добавляем новые строки для остальных элементов
-                        const newRow = document.createElement('div');
-                        newRow.className = 'budget-row';
-                        newRow.innerHTML = `
-                            <input type="number" placeholder="Сумма" class="${type}-amount" value="${amount || ''}">
-                            <input type="text" placeholder="Комментарий" class="${type}-comment" value="${(comments && comments[index]) || ''}">
-                        `;
-                        container.appendChild(newRow);
-                    }
-                });
-            } else if (amounts !== undefined && amounts !== null) {
-                // Если amounts - это одно значение (не массив)
-                container.querySelector(`.${type}-amount`).value = amounts || '';
-                container.querySelector(`.${type}-comment`).value = comments || '';
-            }
-        }
-        
-        // Отображение данных бюджета
-        function renderBudgetItems() {
-            if (!currentBudgetItems.length) {
-                // Если нет данных бюджета, очищаем все поля
-                document.querySelectorAll('[class$="-amount"]').forEach(input => input.value = '');
-                document.querySelectorAll('[class$="-comment"]').forEach(input => input.value = '');
-                calculateTotal();
-                return;
-            }
-            
-            const budgetItem = currentBudgetItems[0];
-            
-            // Заполняем данные для каждой категории
-            fillBudgetRows('salary', budgetItem.salary_expenses, budgetItem.comments);
-            fillBudgetRows('contract', budgetItem.contract_payments, budgetItem.comments);
-            fillBudgetRows('insurance', budgetItem.insurance_contributions, budgetItem.comments);
-            fillBudgetRows('travel', budgetItem.travel_expenses, budgetItem.comments);
-            fillBudgetRows('office', budgetItem.office_expenses, budgetItem.comments);
-            fillBudgetRows('equipment', budgetItem.equipment_costs, budgetItem.comments);
-            fillBudgetRows('it', budgetItem.it_costs, budgetItem.comments);
-            fillBudgetRows('consulting', budgetItem.consulting_fees, budgetItem.comments);
-            fillBudgetRows('event', budgetItem.event_costs, budgetItem.comments);
-            fillBudgetRows('publishing', budgetItem.publishing_costs, budgetItem.comments);
-            fillBudgetRows('other', budgetItem.other_expenses, budgetItem.comments);
-            
-            // Пересчитываем общую сумму
-            calculateTotal();
-        }
-
-        // Расчет общей суммы
-        function calculateTotal() {
-            let total = 0;
-            
-            // Суммируем значения всех полей ввода с суммами
-            document.querySelectorAll('[class$="-amount"]').forEach(input => {
-                const value = parseFloat(input.value);
-                if (!isNaN(value)) {
-                    total += value;
-                }
-            });
-            
-            document.getElementById('total-amount').textContent = total.toFixed(2);
-        }
-
-        // Установка обработчиков событий для полей ввода
-        function setupBudgetInputListeners() {
-            document.querySelectorAll('[class$="-amount"]').forEach(input => {
-                input.addEventListener('input', calculateTotal);
-            });
-        }
-        
-        // Показ деталей проекта
-        async function showProjectDetails(project) {
-            currentProject = project;
-            
-            // Заполняем информацию о проекте
-            document.getElementById('project-view-title').textContent = project.title || 'Без названия';
-            document.getElementById('project-type-view').textContent = project.project_type || 'Не указан';
-            document.getElementById('project-description-view').textContent = project.description || 'Не указано';
-            document.getElementById('project-geography-view').textContent = project.geography || 'Не указана';
-            document.getElementById('project-start-date-view').textContent = formatDate(project.start_date);
-            document.getElementById('project-end-date-view').textContent = formatDate(project.end_date);
-            document.getElementById('project-goal-view').textContent = project.goal || 'Не указана';
-            document.getElementById('project-results-view').textContent = project.expected_results || 'Не указаны';
-            document.getElementById('project-tasks-view').textContent = project.tasks || 'Не указаны';
-            document.getElementById('project-partners-view').textContent = project.partners || 'Не указаны';
-            document.getElementById('project-development-view').textContent = project.future_development || 'Не указано';
-            document.getElementById('project-resources-view').textContent = project.resources || 'Не указаны';
-            
-            // Загружаем данные бюджета
-            await loadProjectBudget(project.id);
-            
-            // Настраиваем обработчики событий для полей ввода
-            setupBudgetInputListeners();
-            
-            // Показываем вкладку просмотра проекта
-            showSection('project-view-content');
-        }
-        
-        // Переключение между разделами
-        function showSection(sectionId) {
-            const sections = ['dashboard-content', 'create-project-content', 'projects-list-content', 'project-view-content']
-            sections.forEach(id => {
-                document.getElementById(id).style.display = id === sectionId ? 'block' : 'none'
-            })
-            
-            // Обновляем активную ссылку в навигации
-            const navLinks = ['dashboard-link', 'projects-link', 'profile-link', 'settings-link']
-            navLinks.forEach(id => {
-                const link = document.getElementById(id)
-                if (link) {
-                    link.classList.toggle('active', id === `${sectionId.replace('-content', '-link')}`)
-                }
-            })
-            
-            // Если показываем список проектов - загружаем их
-            if (sectionId === 'projects-list-content') {
-                checkAuth().then(user => {
-                    if (user) loadUserProjects(user.id)
-                })
-            }
-            
-            // Если показываем панель управления - загружаем статистику
-            if (sectionId === 'dashboard-content') {
-                checkAuth().then(user => {
-                    if (user) loadDashboardStats(user.id)
-                })
-            }
-        }
-        
-        // Инициализация
-        document.addEventListener('DOMContentLoaded', async () => {
-            const user = await checkAuth()
-            if (!user) return
-            
-            // Настройка обработчиков навигации
-            document.getElementById('dashboard-link').addEventListener('click', (e) => {
-                e.preventDefault()
-                showSection('dashboard-content')
-            })
-            
-            document.getElementById('projects-link').addEventListener('click', (e) => {
-                e.preventDefault()
-                showSection('projects-list-content')
-            })
-            
-            // Обработчики кнопок создания проекта
-            document.getElementById('new-project-btn').addEventListener('click', () => {
-                showSection('create-project-content')
-            })
-            
-            document.getElementById('new-project-btn-list').addEventListener('click', () => {
-                showSection('create-project-content')
-            })
-            
-            document.addEventListener('click', (e) => {
-    if (e.target.id === 'create-first-btn' || 
-        e.target.id === 'create-first-btn-list' || 
-        e.target.id === 'create-first-btn-dashboard') {
-        showSection('create-project-content')
+// Проверка авторизации
+async function checkAuth() {
+    const session = JSON.parse(localStorage.getItem('auth')) || JSON.parse(sessionStorage.getItem('auth'))
+    
+    if (!session) {
+        window.location.href = 'index.html'
+        return null
     }
-})
-            
-            // Обработчик для кнопки в списке проектов (если нет проектов)
-            document.addEventListener('click', (e) => {
-                if (e.target.id === 'create-first-btn-list') {
-                    showSection('create-project-content')
-                }
-            })
-            
-            // Обработчик кнопки отмены
-            document.getElementById('cancel-project-btn').addEventListener('click', () => {
-                showSection('projects-list-content')
-            })
-            
-            // Обработчик кнопки создания проекта
-            document.getElementById('submit-project-btn').addEventListener('click', async () => {
-                const user = await checkAuth()
-                if (!user) return
-                
-                // Собираем данные из формы
-                const projectData = {
-                    user_id: user.id,
-                    project_type: document.getElementById('project-type').value,
-                    title: document.getElementById('project-name').value,
-                    description: document.getElementById('project-description').value,
-                    geography: document.getElementById('project-geography').value,
-                    start_date: document.getElementById('start-date').value,
-                    end_date: document.getElementById('end-date').value,
-                    goal: document.getElementById('project-goal').value,
-                    expected_results: document.getElementById('project-results').value,
-                    tasks: document.getElementById('project-tasks').value,
-                    partners: document.getElementById('project-partners').value,
-                    future_development: document.getElementById('project-development').value,
-                    resources: document.getElementById('project-resources').value
-                }
-                
-                // Валидация обязательных полей
-                if (!projectData.project_type || !projectData.title || !projectData.description || 
-                    !projectData.geography || !projectData.start_date || !projectData.end_date || 
-                    !projectData.goal || !projectData.expected_results || !projectData.tasks) {
-                    alert('Пожалуйста, заполните все обязательные поля')
-                    return
-                }
-                
-                try {
-                    // Сохраняем проект в базу данных
-                    const { data, error } = await supabase
-                        .from('projects')
-                        .insert([projectData])
-                        .select()
-                    
-                    if (error) throw error
-                    
-                    alert('Проект успешно создан!')
-                    showSection('projects-list-content')
-                    
-                } catch (error) {
-                    console.error('Ошибка при создании проекта:', error)
-                    alert('Произошла ошибка при создании проекта: ' + error.message)
-                }
-            })
-            
-            // Обработчик кнопки "Назад к проектам"
-            document.getElementById('back-to-projects-btn').addEventListener('click', () => {
-                showSection('projects-list-content')
-            })
-            
-            // Обработчики вкладок проекта
-            document.querySelectorAll('.project-tab').forEach(tab => {
-                tab.addEventListener('click', () => {
-                    // Убираем активный класс у всех вкладок
-                    document.querySelectorAll('.project-tab').forEach(t => {
-                        t.classList.remove('active')
-                    })
-                    
-                    // Добавляем активный класс текущей вкладке
-                    tab.classList.add('active')
-                    
-                    // Скрываем все содержимое вкладок
-                    document.querySelectorAll('.project-tab-content').forEach(content => {
-                        content.classList.remove('active')
-                    })
-                    
-                    // Показываем содержимое текущей вкладки
-                    const tabId = tab.getAttribute('data-tab')
-                    document.getElementById(`${tabId}-tab`).classList.add('active')
+    
+    try {
+        const { data, error } = await supabase.auth.getUser(session.access_token)
+        
+        if (error) {
+            localStorage.removeItem('auth')
+            sessionStorage.removeItem('auth')
+            window.location.href = 'index.html'
+            return null
+        }
+        return data.user
+    } catch (error) {
+        console.error('Ошибка проверки авторизации:', error)
+        window.location.href = 'index.html'
+        return null
+    }
+}
+
+// Форматирование даты
+function formatDate(dateString) {
+    if (!dateString) return 'Не указана'
+    const date = new Date(dateString)
+    return date.toLocaleDateString('ru-RU')
+}
+
+// Загрузка проектов пользователя
+async function loadUserProjects(userId) {
+    const projectsContainer = document.getElementById('projects-container')
+    projectsContainer.innerHTML = '<div class="no-projects"><p>Загрузка проектов...</p></div>'
+    
+    try {
+        const { data: projects, error } = await supabase
+            .from('projects')
+            .select('*')
+            .eq('user_id', userId)
+            .order('created_at', { ascending: false })
+        
+        if (error) throw error
+        
+        if (projects.length === 0) {
+            projectsContainer.innerHTML = `
+                <div class="no-projects">
+                    <p>У вас пока нет проектов</p>
+                    <button class="create-first-btn" id="create-first-btn-list">Создать первый проект</button>
+                </div>
+            `
+        } else {
+            projectsContainer.innerHTML = `
+                <div class="projects-list">
+                    ${projects.map(project => `
+                        <div class="project-card" data-project-id="${project.id}">
+                            <div class="project-header">
+                                <h3 class="project-title">${project.title || 'Без названия'}</h3>
+                                <span class="project-type">${project.project_type || 'Не указан'}</span>
+                            </div>
+                            <div class="project-details">
+                                <div class="detail-item">
+                                    <div class="detail-label">Начало</div>
+                                    <div class="detail-value">${formatDate(project.start_date)}</div>
+                                </div>
+                                <div class="detail-item">
+                                    <div class="detail-label">Окончание</div>
+                                    <div class="detail-value">${formatDate(project.end_date)}</div>
+                                </div>
+                                <div class="detail-item">
+                                    <div class="detail-label">География</div>
+                                    <div class="detail-value">${project.geography || 'Не указана'}</div>
+                                </div>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            `
+
+            // Добавляем обработчики клика на карточки проектов
+            document.querySelectorAll('.project-card').forEach(card => {
+                card.addEventListener('click', (e) => {
+                    const projectId = card.getAttribute('data-project-id')
+                    const project = projects.find(p => p.id == projectId)
+                    if (project) {
+                        showProjectDetails(project)
+                    }
                 })
             })
-            
-            // Обработчики кнопок "Добавить строку"
-            document.querySelectorAll('.add-row-btn').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    const type = btn.getAttribute('data-type');
-                    const container = document.getElementById(`${type}-rows`);
-                    
-                    const newRow = document.createElement('div');
-                    newRow.className = 'budget-row';
-                    newRow.innerHTML = `
-                        <input type="number" placeholder="Сумма" class="${type}-amount">
-                        <input type="text" placeholder="Комментарий" class="${type}-comment">
-                    `;
-                    
-                    container.appendChild(newRow);
-                    
-                    // Добавляем обработчик для нового поля ввода
-                    newRow.querySelector(`.${type}-amount`).addEventListener('input', calculateTotal);
-                });
+        }
+    } catch (error) {
+        console.error('Ошибка загрузки проектов:', error)
+        projectsContainer.innerHTML = `
+            <div class="no-projects">
+                <p>Ошибка загрузки проектов</p>
+            </div>
+        `
+    }
+}
+
+// Загрузка статистики для панели управления
+async function loadDashboardStats(userId) {
+    try {
+        // Получаем все проекты пользователя
+        const { data: projects, error } = await supabase
+            .from('projects')
+            .select('*')
+            .eq('user_id', userId)
+        
+        if (error) throw error
+        
+        // Текущая дата
+        const today = new Date();
+        
+        // 1. Активные проекты (где текущая дата между start_date и end_date)
+        const activeProjects = projects.filter(project => {
+            const startDate = new Date(project.start_date);
+            const endDate = new Date(project.end_date);
+            return today >= startDate && today <= endDate;
+        });
+        
+        // 2. Проекты с близкими дедлайнами (до окончания осталось <= 7 дней)
+        const upcomingDeadlines = projects.filter(project => {
+            const endDate = new Date(project.end_date);
+            const diffTime = endDate - today;
+            const diffDays = diffTime / (1000 * 60 * 60 * 24);
+            return diffDays <= 7 && diffDays >= 0;
+        });
+        
+        // 3. Недавно созданные проекты (созданы за последние 7 дней)
+        const recentProjects = projects.filter(project => {
+            const createdDate = new Date(project.created_at);
+            const diffTime = today - createdDate;
+            const diffDays = diffTime / (1000 * 60 * 60 * 24);
+            return diffDays <= 7;
+        });
+        
+        // Обновляем статистику на странице
+        document.getElementById('active-projects-count').textContent = activeProjects.length;
+        document.getElementById('upcoming-deadlines-count').textContent = upcomingDeadlines.length;
+        document.getElementById('recent-projects-count').textContent = recentProjects.length;
+        
+        // Отображаем последние проекты (например, 5 самых новых)
+        const recentProjectsContainer = document.getElementById('recent-projects-container');
+        const recentProjectsToShow = projects.slice(0, 5);
+        
+        if (recentProjectsToShow.length === 0) {
+            recentProjectsContainer.innerHTML = `
+                <div class="no-projects">
+                    <p>У вас пока нет проектов</p>
+                    <button class="create-first-btn" id="create-first-btn-dashboard">Создать первый проект</button>
+                </div>
+            `;
+        } else {
+            recentProjectsContainer.innerHTML = `
+                <div class="projects-list">
+                    ${recentProjectsToShow.map(project => `
+                        <div class="project-card" data-project-id="${project.id}">
+                            <div class="project-header">
+                                <h3 class="project-title">${project.title || 'Без названия'}</h3>
+                                <span class="project-type">${project.project_type || 'Не указан'}</span>
+                            </div>
+                            <div class="project-details">
+                                <div class="detail-item">
+                                    <div class="detail-label">Начало</div>
+                                    <div class="detail-value">${formatDate(project.start_date)}</div>
+                                </div>
+                                <div class="detail-item">
+                                    <div class="detail-label">Окончание</div>
+                                    <div class="detail-value">${formatDate(project.end_date)}</div>
+                                </div>
+                                <div class="detail-item">
+                                    <div class="detail-label">География</div>
+                                    <div class="detail-value">${project.geography || 'Не указана'}</div>
+                                </div>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+
+            // Добавляем обработчики клика на карточки проектов
+            document.querySelectorAll('#recent-projects-container .project-card').forEach(card => {
+                card.addEventListener('click', (e) => {
+                    const projectId = card.getAttribute('data-project-id')
+                    const project = recentProjectsToShow.find(p => p.id == projectId)
+                    if (project) {
+                        showProjectDetails(project)
+                    }
+                })
+            })
+        }
+        
+    } catch (error) {
+        console.error('Ошибка загрузки статистики:', error);
+        document.getElementById('dashboard-stats').innerHTML = `
+            <div class="no-projects">
+                <p>Ошибка загрузки статистики</p>
+            </div>
+        `;
+    }
+}
+
+// Загрузка категорий бюджета
+async function loadBudgetCategories() {
+    try {
+        const { data, error } = await supabase
+            .from('budget_categories')
+            .select('*')
+            .order('id', { ascending: true });
+        
+        if (error) throw error;
+        
+        budgetCategories = data;
+        return data;
+    } catch (error) {
+        console.error('Ошибка загрузки категорий бюджета:', error);
+        return [];
+    }
+}
+
+// Загрузка данных бюджета для проекта
+async function loadProjectBudget(projectId) {
+    try {
+        // Сначала загружаем категории, если еще не загружены
+        if (budgetCategories.length === 0) {
+            await loadBudgetCategories();
+        }
+
+        const { data, error } = await supabase
+            .from('budget_items')
+            .select(`
+                *,
+                budget_categories:category_id (name, description)
+            `)
+            .eq('project_id', projectId)
+            .order('category_id', { ascending: true })
+            .order('created_at', { ascending: true });
+        
+        if (error) throw error;
+        
+        budgetItems = data || [];
+        renderBudgetItems();
+        calculateTotal();
+    } catch (error) {
+        console.error('Ошибка загрузки бюджета:', error);
+        // Создаем пустые строки для каждой категории
+        budgetItems = [];
+        renderBudgetItems();
+        calculateTotal();
+    }
+}
+
+// Отображение данных бюджета
+function renderBudgetItems() {
+    // Очищаем все контейнеры
+    document.querySelectorAll('.budget-item-rows').forEach(container => {
+        container.innerHTML = '';
+    });
+    
+    // Группируем элементы по категориям
+    const itemsByCategory = {};
+    budgetItems.forEach(item => {
+        if (!itemsByCategory[item.category_id]) {
+            itemsByCategory[item.category_id] = [];
+        }
+        itemsByCategory[item.category_id].push(item);
+    });
+    
+    // Для каждой категории создаем строки
+    budgetCategories.forEach(category => {
+        const categoryItems = itemsByCategory[category.id] || [];
+        const container = document.getElementById(`${getCategorySlug(category.name)}-rows`);
+        
+        if (categoryItems.length === 0) {
+            // Добавляем одну пустую строку, если нет элементов
+            container.appendChild(createBudgetRow(category.id));
+        } else {
+            // Добавляем все существующие элементы
+            categoryItems.forEach(item => {
+                container.appendChild(createBudgetRow(category.id, item.amount, item.comment, item.id));
             });
+        }
+    });
+    
+    // Добавляем обработчики событий для новых полей ввода
+    setupBudgetInputListeners();
+}
+
+// Создание строки бюджета
+function createBudgetRow(categoryId, amount = '', comment = '', itemId = null) {
+    const category = budgetCategories.find(c => c.id === categoryId);
+    if (!category) return document.createElement('div');
+    
+    const slug = getCategorySlug(category.name);
+    const row = document.createElement('div');
+    row.className = 'budget-row';
+    row.dataset.categoryId = categoryId;
+    if (itemId) row.dataset.itemId = itemId;
+    
+    row.innerHTML = `
+        <input type="number" placeholder="Сумма" class="${slug}-amount" value="${amount}">
+        <input type="text" placeholder="Комментарий" class="${slug}-comment" value="${comment || ''}">
+        <button class="remove-row-btn" data-type="${slug}">×</button>
+    `;
+    
+    return row;
+}
+
+// Получение slug для категории (для использования в классах)
+function getCategorySlug(categoryName) {
+    if (!categoryName) return '';
+    
+    // Создаем маппинг для предсказуемых slug
+    const slugMap = {
+        '1.1 Оплата труда штатных работников': 'salary',
+        '1.2 Выплаты физическим лицам': 'contract',
+        '1.3 Страховые взносы': 'insurance',
+        '2 Командировочные расходы': 'travel',
+        '3 Офисные расходы': 'office',
+        '4 Приобретение оборудования': 'equipment',
+        '5 Разработка и поддержка сайтов': 'it',
+        '6 Консультационные услуги': 'consulting',
+        '7 Расходы на мероприятия': 'event',
+        '8 Издательские расходы': 'publishing',
+        '9 Прочие прямые расходы': 'other'
+    };
+    
+    return slugMap[categoryName] || categoryName
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-|-$/g, '')
+        .replace(/^(\d+\.\d+)/, '$1-')
+        .replace(/\./g, '');
+}
+
+// Расчет общей суммы
+function calculateTotal() {
+    let total = 0;
+    
+    // Суммируем значения всех полей ввода с суммами
+    document.querySelectorAll('[class$="-amount"]').forEach(input => {
+        const value = parseFloat(input.value);
+        if (!isNaN(value)) {
+            total += value;
+        }
+    });
+    
+    document.getElementById('total-amount').textContent = total.toFixed(2);
+}
+
+// Установка обработчиков событий для полей ввода
+function setupBudgetInputListeners() {
+    document.querySelectorAll('[class$="-amount"]').forEach(input => {
+        input.addEventListener('input', calculateTotal);
+    });
+    
+    // Обработчики для кнопок удаления строк
+    document.querySelectorAll('.remove-row-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const row = this.closest('.budget-row');
+            const itemId = row.dataset.itemId;
             
-            // Обработчик сохранения бюджета
-document.getElementById('save-budget-btn').addEventListener('click', async () => {
+            if (itemId) {
+                if (confirm('Удалить эту строку бюджета?')) {
+                    deleteBudgetItem(itemId).then(() => {
+                        row.remove();
+                        calculateTotal();
+                    });
+                }
+            } else {
+                row.remove();
+                calculateTotal();
+            }
+        });
+    });
+}
+
+// Удаление элемента бюджета
+async function deleteBudgetItem(itemId) {
+    try {
+        const { error } = await supabase
+            .from('budget_items')
+            .delete()
+            .eq('id', itemId);
+            
+        if (error) throw error;
+        
+        // Обновляем локальный список элементов
+        budgetItems = budgetItems.filter(item => item.id != itemId);
+    } catch (error) {
+        console.error('Ошибка удаления элемента бюджета:', error);
+        alert('Ошибка при удалении элемента бюджета');
+    }
+}
+
+// Показ деталей проекта
+async function showProjectDetails(project) {
+    currentProject = project;
+    
+    // Заполняем информацию о проекте
+    document.getElementById('project-view-title').textContent = project.title || 'Без названия';
+    document.getElementById('project-type-view').textContent = project.project_type || 'Не указан';
+    document.getElementById('project-description-view').textContent = project.description || 'Не указано';
+    document.getElementById('project-geography-view').textContent = project.geography || 'Не указана';
+    document.getElementById('project-start-date-view').textContent = formatDate(project.start_date);
+    document.getElementById('project-end-date-view').textContent = formatDate(project.end_date);
+    document.getElementById('project-goal-view').textContent = project.goal || 'Не указана';
+    document.getElementById('project-results-view').textContent = project.expected_results || 'Не указаны';
+    document.getElementById('project-tasks-view').textContent = project.tasks || 'Не указаны';
+    document.getElementById('project-partners-view').textContent = project.partners || 'Не указаны';
+    document.getElementById('project-development-view').textContent = project.future_development || 'Не указано';
+    document.getElementById('project-resources-view').textContent = project.resources || 'Не указаны';
+    
+    // Загружаем категории бюджета (если еще не загружены)
+    if (budgetCategories.length === 0) {
+        await loadBudgetCategories();
+    }
+    
+    // Загружаем данные бюджета
+    await loadProjectBudget(project.id);
+    
+    // Показываем вкладку просмотра проекта
+    showSection('project-view-content');
+}
+
+// Переключение между разделами
+function showSection(sectionId) {
+    const sections = ['dashboard-content', 'create-project-content', 'projects-list-content', 'project-view-content']
+    sections.forEach(id => {
+        document.getElementById(id).style.display = id === sectionId ? 'block' : 'none'
+    })
+    
+    // Обновляем активную ссылку в навигации
+    const navLinks = ['dashboard-link', 'projects-link', 'profile-link', 'settings-link']
+    navLinks.forEach(id => {
+        const link = document.getElementById(id)
+        if (link) {
+            link.classList.toggle('active', id === `${sectionId.replace('-content', '-link')}`)
+        }
+    })
+    
+    // Если показываем список проектов - загружаем их
+    if (sectionId === 'projects-list-content') {
+        checkAuth().then(user => {
+            if (user) loadUserProjects(user.id)
+        })
+    }
+    
+    // Если показываем панель управления - загружаем статистику
+    if (sectionId === 'dashboard-content') {
+        checkAuth().then(user => {
+            if (user) loadDashboardStats(user.id)
+        })
+    }
+}
+
+// Инициализация
+document.addEventListener('DOMContentLoaded', async () => {
+    const user = await checkAuth()
+    if (!user) return
+    
+    // Настройка обработчиков навигации
+    document.getElementById('dashboard-link').addEventListener('click', (e) => {
+        e.preventDefault()
+        showSection('dashboard-content')
+    })
+    
+    document.getElementById('projects-link').addEventListener('click', (e) => {
+        e.preventDefault()
+        showSection('projects-list-content')
+    })
+    
+    // Обработчики кнопок создания проекта
+    document.getElementById('new-project-btn').addEventListener('click', () => {
+        showSection('create-project-content')
+    })
+    
+    document.getElementById('new-project-btn-list').addEventListener('click', () => {
+        showSection('create-project-content')
+    })
+    
+    document.addEventListener('click', (e) => {
+        if (e.target.id === 'create-first-btn' || 
+            e.target.id === 'create-first-btn-list' || 
+            e.target.id === 'create-first-btn-dashboard') {
+            showSection('create-project-content')
+        }
+    })
+    
+    // Обработчик кнопки отмены
+    document.getElementById('cancel-project-btn').addEventListener('click', () => {
+        showSection('projects-list-content')
+    })
+    
+    // Обработчик кнопки создания проекта
+    document.getElementById('submit-project-btn').addEventListener('click', async () => {
+        const user = await checkAuth()
+        if (!user) return
+        
+        // Собираем данные из формы
+        const projectData = {
+            user_id: user.id,
+            project_type: document.getElementById('project-type').value,
+            title: document.getElementById('project-name').value,
+            description: document.getElementById('project-description').value,
+            geography: document.getElementById('project-geography').value,
+            start_date: document.getElementById('start-date').value,
+            end_date: document.getElementById('end-date').value,
+            goal: document.getElementById('project-goal').value,
+            expected_results: document.getElementById('project-results').value,
+            tasks: document.getElementById('project-tasks').value,
+            partners: document.getElementById('project-partners').value,
+            future_development: document.getElementById('project-development').value,
+            resources: document.getElementById('project-resources').value
+        }
+        
+        // Валидация обязательных полей
+        if (!projectData.project_type || !projectData.title || !projectData.description || 
+            !projectData.geography || !projectData.start_date || !projectData.end_date || 
+            !projectData.goal || !projectData.expected_results || !projectData.tasks) {
+            alert('Пожалуйста, заполните все обязательные поля')
+            return
+        }
+        
+        try {
+            // Сохраняем проект в базу данных
+            const { data, error } = await supabase
+                .from('projects')
+                .insert([projectData])
+                .select()
+            
+            if (error) throw error
+            
+            alert('Проект успешно создан!')
+            showSection('projects-list-content')
+            
+        } catch (error) {
+            console.error('Ошибка при создании проекта:', error)
+            alert('Произошла ошибка при создании проекта: ' + error.message)
+        }
+    })
+    
+    // Обработчик кнопки "Назад к проектам"
+    document.getElementById('back-to-projects-btn').addEventListener('click', () => {
+        showSection('projects-list-content')
+    })
+    
+    // Обработчики вкладок проекта
+    document.querySelectorAll('.project-tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+            // Убираем активный класс у всех вкладок
+            document.querySelectorAll('.project-tab').forEach(t => {
+                t.classList.remove('active')
+            })
+            
+            // Добавляем активный класс текущей вкладке
+            tab.classList.add('active')
+            
+            // Скрываем все содержимое вкладок
+            document.querySelectorAll('.project-tab-content').forEach(content => {
+                content.classList.remove('active')
+            })
+            
+            // Показываем содержимое текущей вкладки
+            const tabId = tab.getAttribute('data-tab')
+            document.getElementById(`${tabId}-tab`).classList.add('active')
+        })
+    })
+    
+    // Обработчики кнопок "Добавить строку"
+    document.querySelectorAll('.add-row-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const type = btn.getAttribute('data-type');
+            const category = budgetCategories.find(c => 
+                getCategorySlug(c.name) === type
+            );
+            
+            if (category) {
+                const container = document.getElementById(`${type}-rows`);
+                container.appendChild(createBudgetRow(category.id));
+                setupBudgetInputListeners();
+            }
+        });
+    });
+    
+ document.getElementById('save-budget-btn').addEventListener('click', async () => {
     if (!currentProject) return;
     
     try {
-        // Собираем данные из формы
-        const budgetData = {
+        // Собираем все строки бюджета
+        const itemsToSave = [];
+        
+        document.querySelectorAll('.budget-row').forEach(row => {
+            const categoryId = row.dataset.categoryId;
+            const itemId = row.dataset.itemId || null;
+            const category = budgetCategories.find(c => c.id == categoryId);
+            const slug = getCategorySlug(category?.name || '');
+            
+            const amountInput = row.querySelector(`.${slug}-amount`);
+            const commentInput = row.querySelector(`.${slug}-comment`);
+            
+            const amount = parseFloat(amountInput?.value || 0);
+            const comment = commentInput?.value || '';
+            
+            // Сохраняем строку, если есть сумма или комментарий
+            if (amount > 0 || comment.trim() !== '') {
+                itemsToSave.push({
+                    id: itemId ? parseInt(itemId) : null,
+                    project_id: currentProject.id,
+                    category_id: parseInt(categoryId),
+                    amount: amount,
+                    comment: comment
+                });
+            }
+        });
+        
+        // Разделяем на новые и существующие элементы
+        const newItems = itemsToSave.filter(item => !item.id);
+        const existingItems = itemsToSave.filter(item => item.id);
+        
+        // Получаем ID элементов, которые нужно удалить
+        const currentItemIds = existingItems.map(item => item.id);
+        const itemsToDelete = budgetItems
+            .filter(item => !currentItemIds.includes(item.id))
+            .map(item => item.id);
+        
+        // Вызываем функцию Supabase для сохранения бюджета
+        const { error } = await supabase.rpc('save_project_budget', {
             project_id: currentProject.id,
-            amount: calculateTotalAmount(), // Обязательное поле
-            comments: collectComments(),
-            description: "Бюджет проекта", // Можно изменить на что-то более осмысленное
-            salary_expenses: sumInputValues('.salary-amount'),
-            contract_payments: sumInputValues('.contract-amount'),
-            insurance_contributions: sumInputValues('.insurance-amount'),
-            travel_expenses: sumInputValues('.travel-amount'),
-            office_expenses: sumInputValues('.office-amount'),
-            equipment_costs: sumInputValues('.equipment-amount'),
-            it_costs: sumInputValues('.it-amount'),
-            consulting_fees: sumInputValues('.consulting-amount'),
-            event_costs: sumInputValues('.event-amount'),
-            publishing_costs: sumInputValues('.publishing-amount'),
-            other_expenses: sumInputValues('.other-amount'),
-            // created_at автоматически заполняется триггером
-        };
-
-        // Удаляем старые записи бюджета (если нужно)
-        const { error: deleteError } = await supabase
-            .from('budget_items')
-            .delete()
-            .eq('project_id', currentProject.id);
-        
-        if (deleteError) throw deleteError;
-        
-        // Сохраняем в базу данных
-        const { data, error } = await supabase
-            .from('budget_items')
-            .insert([budgetData])
-            .select();
+            items_to_insert: newItems.length > 0 ? newItems : null,
+            items_to_update: existingItems.length > 0 ? existingItems : null,
+            items_to_delete: itemsToDelete.length > 0 ? itemsToDelete : null
+        });
         
         if (error) throw error;
         
@@ -964,54 +1060,22 @@ document.getElementById('save-budget-btn').addEventListener('click', async () =>
         alert('Ошибка при сохранении бюджета: ' + (error.message || "Проверьте заполнение всех обязательных полей"));
     }
 });
-
-            // Функция для расчета общей суммы (возвращает число)
-            function calculateTotalAmount() {
-                let total = 0;
-                document.querySelectorAll('[class$="-amount"]').forEach(input => {
-                    const value = parseFloat(input.value);
-                    if (!isNaN(value)) {
-                        total += value;
-                    }
-                });
-                return total;
-            }
-
-            // Функция для суммирования значений полей ввода (возвращает 0 для пустых значений)
-            function sumInputValues(selector) {
-                let sum = 0;
-                document.querySelectorAll(selector).forEach(input => {
-                    sum += parseFloat(input.value) || 0;
-                });
-                return sum;
-            }
-
-            // Функция для сбора комментариев (можно улучшить)
-            function collectComments() {
-                let comments = [];
-                document.querySelectorAll('[class$="-comment"]').forEach(input => {
-                    if (input.value) {
-                        comments.push(input.value);
-                    }
-                });
-                return comments.join("\n") || "";
-            }
-                        
-            // Обработчик выхода из системы
-            document.getElementById('logout').addEventListener('click', async () => {
-                try {
-                    await supabase.auth.signOut()
-                    localStorage.removeItem('auth')
-                    sessionStorage.removeItem('auth')
-                    window.location.href = 'index.html'
-                } catch (error) {
-                    console.error('Ошибка выхода:', error)
-                }
-            })
-            
-            // По умолчанию показываем список проектов
-            showSection('projects-list-content')
-        })
+                    
+    // Обработчик выхода из системы
+    document.getElementById('logout').addEventListener('click', async () => {
+        try {
+            await supabase.auth.signOut()
+            localStorage.removeItem('auth')
+            sessionStorage.removeItem('auth')
+            window.location.href = 'index.html'
+        } catch (error) {
+            console.error('Ошибка выхода:', error)
+        }
+    })
+    
+    // По умолчанию показываем список проектов
+    showSection('projects-list-content')
+})
     </script>
 </body>
 </html>
