@@ -339,122 +339,160 @@
             cursor: pointer;
             margin-top: 20px;
         }
-		/* Стили для формы создания проекта */
-.create-project-container {
-    display: none;
-}
+        
+        /* Стили для формы создания проекта */
+        .create-project-container {
+            display: none;
+        }
 
-.create-project-header {
-    margin-bottom: 30px;
-}
+        .create-project-header {
+            margin-bottom: 30px;
+        }
 
-.create-project-header h1 {
-    margin: 0 0 10px 0;
-    font-size: 24px;
-    color: #333;
-}
+        .create-project-header h1 {
+            margin: 0 0 10px 0;
+            font-size: 24px;
+            color: #333;
+        }
 
-.create-project-header p {
-    margin: 0;
-    color: #666;
-}
+        .create-project-header p {
+            margin: 0;
+            color: #666;
+        }
 
-.form-section {
-    margin-bottom: 30px;
-    padding: 20px;
-    border: 1px solid #eee;
-    border-radius: 8px;
-    background-color: #f9f9f9;
-}
+        .form-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #eee;
+            border-radius: 8px;
+            background-color: #f9f9f9;
+        }
 
-.form-section-header {
-    margin-bottom: 20px;
-}
+        .form-section-header {
+            margin-bottom: 20px;
+        }
 
-.form-section-header h2 {
-    margin: 0 0 5px 0;
-    font-size: 18px;
-    color: #333;
-}
+        .form-section-header h2 {
+            margin: 0 0 5px 0;
+            font-size: 18px;
+            color: #333;
+        }
 
-.form-section-header p {
-    margin: 0;
-    color: #666;
-    font-size: 14px;
-}
+        .form-section-header p {
+            margin: 0;
+            color: #666;
+            font-size: 14px;
+        }
 
-.form-row {
-    display: flex;
-    gap: 20px;
-    margin-bottom: 15px;
-}
+        .form-row {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 15px;
+        }
 
-.form-group {
-    flex: 1;
-    margin-bottom: 15px;
-}
+        .form-group {
+            flex: 1;
+            margin-bottom: 15px;
+        }
 
-.form-group label {
-    display: block;
-    margin-bottom: 8px;
-    font-size: 14px;
-    color: #333;
-    font-weight: 500;
-}
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+            color: #333;
+            font-weight: 500;
+        }
 
-.form-group select,
-.form-group input[type="text"],
-.form-group input[type="date"],
-.form-group textarea {
-    width: 100%;
-    padding: 10px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    font-size: 14px;
-    box-sizing: border-box;
-}
+        .form-group select,
+        .form-group input[type="text"],
+        .form-group input[type="date"],
+        .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
 
-.form-group textarea {
-    min-height: 100px;
-    resize: vertical;
-}
+        .form-group textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
 
-.form-actions {
-    display: flex;
-    justify-content: flex-end;
-    gap: 15px;
-    margin-top: 30px;
-    padding-top: 20px;
-    border-top: 1px solid #eee;
-}
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 15px;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
 
-.cancel-btn {
-    padding: 10px 20px;
-    background-color: #f1f1f1;
-    color: #333;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: background-color 0.3s;
-}
+        .cancel-btn {
+            padding: 10px 20px;
+            background-color: #f1f1f1;
+            color: #333;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
 
-.cancel-btn:hover {
-    background-color: #e0e0e0;
-}
+        .cancel-btn:hover {
+            background-color: #e0e0e0;
+        }
 
-.submit-btn {
-    padding: 10px 20px;
-    background-color: #3498db;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: background-color 0.3s;
-}
+        .submit-btn {
+            padding: 10px 20px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
 
-.submit-btn:hover {
-    background-color: #2980b9;
-}
+        .submit-btn:hover {
+            background-color: #2980b9;
+        }
+        
+        /* Стили для панели управления */
+        .dashboard-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            border: 1px solid #eee;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .stat-card h3 {
+            margin: 0 0 10px 0;
+            font-size: 16px;
+            color: #333;
+        }
+        
+        .stat-card p {
+            margin: 0 0 15px 0;
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #3498db;
+        }
+        
+        .recent-projects {
+            margin-top: 30px;
+        }
     </style>
 </head>
 <body>
@@ -466,7 +504,7 @@
         
         <div class="nav-links">
             <a href="#" class="nav-link" id="dashboard-link">Панель управления</a>
-            <a href="#" class="nav-link active" id="projects-link">Мои проекты</a>
+            <a href="#" class="nav-link" id="projects-link">Мои проекты</a>
             <a href="#" class="nav-link" id="profile-link">Мой профиль</a>
             <a href="#" class="nav-link" id="settings-link">Настройки</a>
         </div>
@@ -481,14 +519,38 @@
             <button class="new-project-btn" id="new-project-btn">Создать новый проект</button>
         </div>
         
-        <div class="projects-section">
-            <div class="section-header">
-                <h2>Последние проекты</h2>
+        <div class="dashboard-stats" id="dashboard-stats">
+            <div class="stat-card">
+                <h3>Активные проекты</h3>
+                <p>Общее количество активных проектов</p>
+                <div class="stat-value" id="active-projects-count">0</div>
             </div>
             
-            <div class="no-projects">
-                <p>У вас пока нет созданных проектов</p>
-                <button class="create-first-btn" id="create-first-btn">Создать первый проект</button>
+            <div class="stat-card">
+                <h3>Предстоящие дедлайны</h3>
+                <p>Проекты с близкими сроками завершения</p>
+                <div class="stat-value" id="upcoming-deadlines-count">0</div>
+            </div>
+            
+            <div class="stat-card">
+                <h3>Недавно созданные</h3>
+                <p>Проекты, созданные за последние 7 дней</p>
+                <div class="stat-value" id="recent-projects-count">0</div>
+            </div>
+        </div>
+        
+        <div class="recent-projects">
+            <div class="projects-section">
+                <div class="section-header">
+                    <h2>Последние проекты</h2>
+                </div>
+                <p>Ваши недавно созданные или обновленные проекты</p>
+                
+                <div id="recent-projects-container">
+                    <div class="no-projects">
+                        <p>Загрузка проектов...</p>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -655,7 +717,7 @@
                 </div>
             </div>
             
-             <div class="project-tab-content" id="budget-tab">
+            <div class="project-tab-content" id="budget-tab">
             <h2>Бюджет проекта</h2>
             
             <!-- 1. Оплата труда -->
@@ -821,7 +883,7 @@
         </div>
     </div>
 
-    <script type="module">
+      <script type="module">
         import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
         
         // Инициализация Supabase
@@ -936,6 +998,109 @@
             }
         }
         
+        // Загрузка статистики для панели управления
+        async function loadDashboardStats(userId) {
+            try {
+                // Получаем все проекты пользователя
+                const { data: projects, error } = await supabase
+                    .from('projects')
+                    .select('*')
+                    .eq('user_id', userId)
+                
+                if (error) throw error
+                
+                // Текущая дата
+                const today = new Date();
+                
+                // 1. Активные проекты (где текущая дата между start_date и end_date)
+                const activeProjects = projects.filter(project => {
+                    const startDate = new Date(project.start_date);
+                    const endDate = new Date(project.end_date);
+                    return today >= startDate && today <= endDate;
+                });
+                
+                // 2. Проекты с близкими дедлайнами (до окончания осталось <= 7 дней)
+                const upcomingDeadlines = projects.filter(project => {
+                    const endDate = new Date(project.end_date);
+                    const diffTime = endDate - today;
+                    const diffDays = diffTime / (1000 * 60 * 60 * 24);
+                    return diffDays <= 7 && diffDays >= 0;
+                });
+                
+                // 3. Недавно созданные проекты (созданы за последние 7 дней)
+                const recentProjects = projects.filter(project => {
+                    const createdDate = new Date(project.created_at);
+                    const diffTime = today - createdDate;
+                    const diffDays = diffTime / (1000 * 60 * 60 * 24);
+                    return diffDays <= 7;
+                });
+                
+                // Обновляем статистику на странице
+                document.getElementById('active-projects-count').textContent = activeProjects.length;
+                document.getElementById('upcoming-deadlines-count').textContent = upcomingDeadlines.length;
+                document.getElementById('recent-projects-count').textContent = recentProjects.length;
+                
+                // Отображаем последние проекты (например, 5 самых новых)
+                const recentProjectsContainer = document.getElementById('recent-projects-container');
+                const recentProjectsToShow = projects.slice(0, 5);
+                
+                if (recentProjectsToShow.length === 0) {
+                    recentProjectsContainer.innerHTML = `
+                        <div class="no-projects">
+                            <p>У вас пока нет проектов</p>
+                            <button class="create-first-btn" id="create-first-btn-dashboard">Создать первый проект</button>
+                        </div>
+                    `;
+                } else {
+                    recentProjectsContainer.innerHTML = `
+                        <div class="projects-list">
+                            ${recentProjectsToShow.map(project => `
+                                <div class="project-card" data-project-id="${project.id}">
+                                    <div class="project-header">
+                                        <h3 class="project-title">${project.title || 'Без названия'}</h3>
+                                        <span class="project-type">${project.project_type || 'Не указан'}</span>
+                                    </div>
+                                    <div class="project-details">
+                                        <div class="detail-item">
+                                            <div class="detail-label">Начало</div>
+                                            <div class="detail-value">${formatDate(project.start_date)}</div>
+                                        </div>
+                                        <div class="detail-item">
+                                            <div class="detail-label">Окончание</div>
+                                            <div class="detail-value">${formatDate(project.end_date)}</div>
+                                        </div>
+                                        <div class="detail-item">
+                                            <div class="detail-label">География</div>
+                                            <div class="detail-value">${project.geography || 'Не указана'}</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    `;
+
+                    // Добавляем обработчики клика на карточки проектов
+                    document.querySelectorAll('#recent-projects-container .project-card').forEach(card => {
+                        card.addEventListener('click', (e) => {
+                            const projectId = card.getAttribute('data-project-id')
+                            const project = recentProjectsToShow.find(p => p.id == projectId)
+                            if (project) {
+                                showProjectDetails(project)
+                            }
+                        })
+                    })
+                }
+                
+            } catch (error) {
+                console.error('Ошибка загрузки статистики:', error);
+                document.getElementById('dashboard-stats').innerHTML = `
+                    <div class="no-projects">
+                        <p>Ошибка загрузки статистики</p>
+                    </div>
+                `;
+            }
+        }
+        
         // Загрузка данных бюджета для проекта
         async function loadProjectBudget(projectId) {
             try {
@@ -954,67 +1119,69 @@
                 alert('Ошибка загрузки данных бюджета')
             }
         }
+        
         // Заполнение строк бюджета
-function fillBudgetRows(type, amounts, comments) {
-    const container = document.getElementById(`${type}-rows`);
-    
-    // Очищаем все строки, кроме первой
-    while (container.children.length > 1) {
-        container.removeChild(container.lastChild);
-    }
-    
-    // Если amounts - это массив, заполняем строки
-    if (Array.isArray(amounts)) {
-        amounts.forEach((amount, index) => {
-            // Для первой строки используем существующие поля
-            if (index === 0) {
-                container.querySelector(`.${type}-amount`).value = amount || '';
-                container.querySelector(`.${type}-comment`).value = (comments && comments[index]) || '';
-            } else {
-                // Добавляем новые строки для остальных элементов
-                const newRow = document.createElement('div');
-                newRow.className = 'budget-row';
-                newRow.innerHTML = `
-                    <input type="number" placeholder="Сумма" class="${type}-amount" value="${amount || ''}">
-                    <input type="text" placeholder="Комментарий" class="${type}-comment" value="${(comments && comments[index]) || ''}">
-                `;
-                container.appendChild(newRow);
+        function fillBudgetRows(type, amounts, comments) {
+            const container = document.getElementById(`${type}-rows`);
+            
+            // Очищаем все строки, кроме первой
+            while (container.children.length > 1) {
+                container.removeChild(container.lastChild);
             }
-        });
-    } else if (amounts !== undefined && amounts !== null) {
-        // Если amounts - это одно значение (не массив)
-        container.querySelector(`.${type}-amount`).value = amounts || '';
-        container.querySelector(`.${type}-comment`).value = comments || '';
-    }
-}
+            
+            // Если amounts - это массив, заполняем строки
+            if (Array.isArray(amounts)) {
+                amounts.forEach((amount, index) => {
+                    // Для первой строки используем существующие поля
+                    if (index === 0) {
+                        container.querySelector(`.${type}-amount`).value = amount || '';
+                        container.querySelector(`.${type}-comment`).value = (comments && comments[index]) || '';
+                    } else {
+                        // Добавляем новые строки для остальных элементов
+                        const newRow = document.createElement('div');
+                        newRow.className = 'budget-row';
+                        newRow.innerHTML = `
+                            <input type="number" placeholder="Сумма" class="${type}-amount" value="${amount || ''}">
+                            <input type="text" placeholder="Комментарий" class="${type}-comment" value="${(comments && comments[index]) || ''}">
+                        `;
+                        container.appendChild(newRow);
+                    }
+                });
+            } else if (amounts !== undefined && amounts !== null) {
+                // Если amounts - это одно значение (не массив)
+                container.querySelector(`.${type}-amount`).value = amounts || '';
+                container.querySelector(`.${type}-comment`).value = comments || '';
+            }
+        }
+        
         // Отображение данных бюджета
-function renderBudgetItems() {
-    if (!currentBudgetItems.length) {
-        // Если нет данных бюджета, очищаем все поля
-        document.querySelectorAll('[class$="-amount"]').forEach(input => input.value = '');
-        document.querySelectorAll('[class$="-comment"]').forEach(input => input.value = '');
-        calculateTotal();
-        return;
-    }
-    
-    const budgetItem = currentBudgetItems[0];
-    
-    // Заполняем данные для каждой категории
-    fillBudgetRows('salary', budgetItem.salary_expenses, budgetItem.comments);
-    fillBudgetRows('contract', budgetItem.contract_payments, budgetItem.comments);
-    fillBudgetRows('insurance', budgetItem.insurance_contributions, budgetItem.comments);
-    fillBudgetRows('travel', budgetItem.travel_expenses, budgetItem.comments);
-    fillBudgetRows('office', budgetItem.office_expenses, budgetItem.comments);
-    fillBudgetRows('equipment', budgetItem.equipment_costs, budgetItem.comments);
-    fillBudgetRows('it', budgetItem.it_costs, budgetItem.comments);
-    fillBudgetRows('consulting', budgetItem.consulting_fees, budgetItem.comments);
-    fillBudgetRows('event', budgetItem.event_costs, budgetItem.comments);
-    fillBudgetRows('publishing', budgetItem.publishing_costs, budgetItem.comments);
-    fillBudgetRows('other', budgetItem.other_expenses, budgetItem.comments);
-    
-    // Пересчитываем общую сумму
-    calculateTotal();
-}
+        function renderBudgetItems() {
+            if (!currentBudgetItems.length) {
+                // Если нет данных бюджета, очищаем все поля
+                document.querySelectorAll('[class$="-amount"]').forEach(input => input.value = '');
+                document.querySelectorAll('[class$="-comment"]').forEach(input => input.value = '');
+                calculateTotal();
+                return;
+            }
+            
+            const budgetItem = currentBudgetItems[0];
+            
+            // Заполняем данные для каждой категории
+            fillBudgetRows('salary', budgetItem.salary_expenses, budgetItem.comments);
+            fillBudgetRows('contract', budgetItem.contract_payments, budgetItem.comments);
+            fillBudgetRows('insurance', budgetItem.insurance_contributions, budgetItem.comments);
+            fillBudgetRows('travel', budgetItem.travel_expenses, budgetItem.comments);
+            fillBudgetRows('office', budgetItem.office_expenses, budgetItem.comments);
+            fillBudgetRows('equipment', budgetItem.equipment_costs, budgetItem.comments);
+            fillBudgetRows('it', budgetItem.it_costs, budgetItem.comments);
+            fillBudgetRows('consulting', budgetItem.consulting_fees, budgetItem.comments);
+            fillBudgetRows('event', budgetItem.event_costs, budgetItem.comments);
+            fillBudgetRows('publishing', budgetItem.publishing_costs, budgetItem.comments);
+            fillBudgetRows('other', budgetItem.other_expenses, budgetItem.comments);
+            
+            // Пересчитываем общую сумму
+            calculateTotal();
+        }
 
         // Расчет общей суммы
         function calculateTotal() {
@@ -1088,6 +1255,13 @@ function renderBudgetItems() {
                     if (user) loadUserProjects(user.id)
                 })
             }
+            
+            // Если показываем панель управления - загружаем статистику
+            if (sectionId === 'dashboard-content') {
+                checkAuth().then(user => {
+                    if (user) loadDashboardStats(user.id)
+                })
+            }
         }
         
         // Инициализация
@@ -1115,9 +1289,13 @@ function renderBudgetItems() {
                 showSection('create-project-content')
             })
             
-            document.getElementById('create-first-btn').addEventListener('click', () => {
-                showSection('create-project-content')
-            })
+            document.addEventListener('click', (e) => {
+    if (e.target.id === 'create-first-btn' || 
+        e.target.id === 'create-first-btn-list' || 
+        e.target.id === 'create-first-btn-dashboard') {
+        showSection('create-project-content')
+    }
+})
             
             // Обработчик для кнопки в списке проектов (если нет проектов)
             document.addEventListener('click', (e) => {
@@ -1276,38 +1454,38 @@ document.getElementById('save-budget-btn').addEventListener('click', async () =>
     }
 });
 
-// Функция для расчета общей суммы (возвращает число)
-function calculateTotalAmount() {
-    let total = 0;
-    document.querySelectorAll('[class$="-amount"]').forEach(input => {
-        const value = parseFloat(input.value);
-        if (!isNaN(value)) {
-            total += value;
-        }
-    });
-    return total;
-}
+            // Функция для расчета общей суммы (возвращает число)
+            function calculateTotalAmount() {
+                let total = 0;
+                document.querySelectorAll('[class$="-amount"]').forEach(input => {
+                    const value = parseFloat(input.value);
+                    if (!isNaN(value)) {
+                        total += value;
+                    }
+                });
+                return total;
+            }
 
-// Функция для суммирования значений полей ввода (возвращает 0 для пустых значений)
-function sumInputValues(selector) {
-    let sum = 0;
-    document.querySelectorAll(selector).forEach(input => {
-        sum += parseFloat(input.value) || 0;
-    });
-    return sum;
-}
+            // Функция для суммирования значений полей ввода (возвращает 0 для пустых значений)
+            function sumInputValues(selector) {
+                let sum = 0;
+                document.querySelectorAll(selector).forEach(input => {
+                    sum += parseFloat(input.value) || 0;
+                });
+                return sum;
+            }
 
-// Функция для сбора комментариев (можно улучшить)
-function collectComments() {
-    let comments = [];
-    document.querySelectorAll('[class$="-comment"]').forEach(input => {
-        if (input.value) {
-            comments.push(input.value);
-        }
-    });
-    return comments.join("\n") || "";
-}
-            
+            // Функция для сбора комментариев (можно улучшить)
+            function collectComments() {
+                let comments = [];
+                document.querySelectorAll('[class$="-comment"]').forEach(input => {
+                    if (input.value) {
+                        comments.push(input.value);
+                    }
+                });
+                return comments.join("\n") || "";
+            }
+                        
             // Обработчик выхода из системы
             document.getElementById('logout').addEventListener('click', async () => {
                 try {

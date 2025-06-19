@@ -228,16 +228,17 @@
                     
                     // 2. Добавление в таблицу profiles
                     const { error: profileError } = await window.supabase
-                        .from('profiles')
-                        .insert([{
-                            id: data.user.id,
-                            phone: phone,
-                            organization: organization
-                        }]);
+    .from('profiles')
+    .upsert({
+        id: data.user.id,
+        phone: phone,
+        organization: organization,
+        updated_at: new Date().toISOString()
+    });
+
+if (profileError) throw profileError;
                     
-                    if (profileError) throw profileError;
-                    
-                    alert('Регистрация успешна! Проверьте ваш email для подтверждения.');
+                    alert('Регистрация успешна!');
                     window.location.href = 'index.html';
                     
                 } catch (error) {
