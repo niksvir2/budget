@@ -398,7 +398,50 @@
             </div>
         </div>
     </div>
+<!-- Мой профиль -->
+<div class="main-content" id="profile-content">
+    <div class="content-header">
+        <h1>Мой профиль</h1>
+    </div>
+    
+    <div class="projects-section">
+        <div class="profile-info">
+            <div class="profile-row">
+                <span class="profile-label">Email:</span>
+                <span class="profile-value" id="profile-email"></span>
+            </div>
+            <div class="profile-row">
+                <span class="profile-label">Телефон:</span>
+                <span class="profile-value" id="profile-phone"></span>
+            </div>
+            <div class="profile-row">
+                <span class="profile-label">Организация:</span>
+                <span class="profile-value" id="profile-organization"></span>
+            </div>
+        </div>
+    </div>
+</div>
 
+<!-- Настройки -->
+<div class="main-content" id="settings-content">
+    <div class="content-header">
+        <h1>Настройки</h1>
+    </div>
+    
+    <div class="projects-section">
+        <div class="about-section">
+            <h2>О приложении</h2>
+            <p>Информация о системе бюджетирования проектов</p>
+            <p>Система бюджетирования проектов предназначена для эффективного планирования, учета и контроля финансовых ресурсов в рамках реализации различных проектов. Она позволяет:</p>
+            <ul>
+                <li>Создавать и управлять проектами с детальным бюджетом</li>
+                <li>Контролировать расходы по категориям</li>
+                <li>Контролировать сроки завершения проектов</li>
+            </ul>
+            <p>Версия 1.0.0</p>
+        </div>
+    </div>
+</div>
       <script type="module">
         import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
         
@@ -843,7 +886,14 @@ async function showProjectDetails(project) {
 
 // Переключение между разделами
 function showSection(sectionId) {
-    const sections = ['dashboard-content', 'create-project-content', 'projects-list-content', 'project-view-content']
+    const sections = [
+        'dashboard-content', 
+        'create-project-content', 
+        'projects-list-content', 
+        'project-view-content',
+        'profile-content',
+        'settings-content'
+    ];
     sections.forEach(id => {
         document.getElementById(id).style.display = id === sectionId ? 'block' : 'none'
     })
@@ -887,7 +937,43 @@ document.addEventListener('DOMContentLoaded', async () => {
         e.preventDefault()
         showSection('projects-list-content')
     })
+    // Обработчик кнопки профиля
+document.getElementById('profile-link').addEventListener('click', async (e) => {
+    e.preventDefault();
+    showSection('profile-content');
     
+    // Загружаем данные профиля
+    const user = await checkAuth();
+    if (!user) return;
+    
+    // Получаем данные профиля из таблицы profiles
+    try {
+        const { data: profile, error } = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('id', user.id)
+            .single();
+            
+        if (error) throw error;
+        
+        // Заполняем данные профиля
+        document.getElementById('profile-email').textContent = user.email;
+        document.getElementById('profile-phone').textContent = profile?.phone || 'Не указан';
+        document.getElementById('profile-organization').textContent = profile?.organization || 'Не указана';
+        
+    } catch (error) {
+        console.error('Ошибка загрузки профиля:', error);
+        document.getElementById('profile-email').textContent = user.email;
+        document.getElementById('profile-phone').textContent = 'Ошибка загрузки';
+        document.getElementById('profile-organization').textContent = 'Ошибка загрузки';
+    }
+});
+
+// Обработчик кнопки настроек
+document.getElementById('settings-link').addEventListener('click', (e) => {
+    e.preventDefault();
+    showSection('settings-content');
+});
     // Обработчики кнопок создания проекта
     document.getElementById('new-project-btn').addEventListener('click', () => {
         showSection('create-project-content')

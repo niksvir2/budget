@@ -93,6 +93,8 @@ button {
 .login-link, .register-link {
     margin-top: 20px;
     font-size: 14px;
+	 text-align: center; /* Добавлено выравнивание по центру */
+    width: 100%; /* Занимает всю доступную ширину */
 }
 
 .login-link a, .register-link a {
@@ -450,11 +452,13 @@ button {
 }
 
 .total-amount {
-    font-size: 18px;
+     font-size: 18px;
     font-weight: bold;
     margin-top: 20px;
     padding-top: 10px;
     border-top: 1px solid #eee;
+    text-align: center; /* Добавлено выравнивание по центру */
+    width: 100%; /* Занимает всю доступную ширину */
 }
 
 .back-btn {
@@ -626,4 +630,50 @@ button {
     padding: 0;
     background-color: #f5f5f5;
     min-height: 100vh;
+}
+/* Стили для профиля */
+.profile-info {
+    padding: 20px;
+}
+
+.profile-row {
+    display: flex;
+    margin-bottom: 15px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #eee;
+}
+
+.profile-label {
+    font-weight: bold;
+    width: 150px;
+    color: #333;
+}
+
+.profile-value {
+    flex: 1;
+    color: #666;
+}
+
+/* Стили для настроек */
+.about-section {
+    padding: 20px;
+}
+
+.about-section h2 {
+    color: #3498db;
+    margin-bottom: 15px;
+}
+
+.about-section p {
+    margin-bottom: 10px;
+    line-height: 1.5;
+}
+
+.about-section ul {
+    margin: 15px 0;
+    padding-left: 20px;
+}
+
+.about-section li {
+    margin-bottom: 8px;
 }
