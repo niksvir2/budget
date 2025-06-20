@@ -28,6 +28,7 @@
         
         <button class="logout-btn" id="logout">Выйти</button>
     </div>
+	<div class="mobile-menu-btn" id="mobileMenuBtn">☰</div>
     
     <!-- Основной контент - Панель управления -->
     <div class="main-content" id="dashboard-content">
@@ -938,6 +939,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         e.preventDefault()
         showSection('projects-list-content')
     })
+	document.getElementById('mobileMenuBtn').addEventListener('click', () => {
+    document.querySelector('.sidebar').classList.toggle('active');
+});
     // Обработчик кнопки профиля
 document.getElementById('profile-link').addEventListener('click', async (e) => {
     e.preventDefault();
