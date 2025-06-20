@@ -91,12 +91,12 @@
                 <div class="form-group">
                     <label for="project-type">Тип проекта</label>
                     <select id="project-type">
-                        <option value="">Выберите тип проекта</option>
-                        <option value="research">Исследовательский</option>
-                        <option value="development">Разработка</option>
-                        <option value="education">Образовательный</option>
-                        <option value="social">Социальный</option>
-                    </select>
+    <option value="">Выберите тип проекта</option>
+    <option value="research">Исследовательский</option>
+    <option value="development">Разработка</option>
+    <option value="education">Образовательный</option>
+    <option value="social">Социальный</option>
+</select>
                 </div>
                 
                 <div class="form-group">
@@ -451,7 +451,12 @@
 const supabaseUrl = 'https://ijksnxqnabykqjvqeoud.supabase.co'
 const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imlqa3NueHFuYWJ5a3FqdnFlb3VkIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDkwNDI0MzMsImV4cCI6MjA2NDYxODQzM30.TXQO0z4iEP95eVVwirdEwww0BWJyPmKKg_DSC4SSr9Q'
 const supabase = createClient(supabaseUrl, supabaseKey)
-
+const projectTypeTranslations = {
+    'research': 'Исследовательский',
+    'development': 'Разработка',
+    'education': 'Образовательный',
+    'social': 'Социальный'
+};
 // Текущий просматриваемый проект
 let currentProject = null;
 let budgetCategories = [];
@@ -518,7 +523,7 @@ async function loadUserProjects(userId) {
                         <div class="project-card" data-project-id="${project.id}">
                             <div class="project-header">
                                 <h3 class="project-title">${project.title || 'Без названия'}</h3>
-                                <span class="project-type">${project.project_type || 'Не указан'}</span>
+                                <span class="project-type">${projectTypeTranslations[project.project_type] || project.project_type || 'Не указан'}</span>
                             </div>
                             <div class="project-details">
                                 <div class="detail-item">
@@ -620,7 +625,7 @@ async function loadDashboardStats(userId) {
                         <div class="project-card" data-project-id="${project.id}">
                             <div class="project-header">
                                 <h3 class="project-title">${project.title || 'Без названия'}</h3>
-                                <span class="project-type">${project.project_type || 'Не указан'}</span>
+                                <span class="project-type">${projectTypeTranslations[project.project_type] || project.project_type || 'Не указан'}</span>
                             </div>
                             <div class="project-details">
                                 <div class="detail-item">
@@ -862,7 +867,8 @@ async function showProjectDetails(project) {
     
     // Заполняем информацию о проекте
     document.getElementById('project-view-title').textContent = project.title || 'Без названия';
-    document.getElementById('project-type-view').textContent = project.project_type || 'Не указан';
+    const translatedType = projectTypeTranslations[project.project_type] || project.project_type || 'Не указан';
+document.getElementById('project-type-view').textContent = translatedType;
     document.getElementById('project-description-view').textContent = project.description || 'Не указано';
     document.getElementById('project-geography-view').textContent = project.geography || 'Не указана';
     document.getElementById('project-start-date-view').textContent = formatDate(project.start_date);
