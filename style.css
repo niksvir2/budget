@@ -30,10 +30,6 @@ input[type="date"] {
 }
 
 @media (max-width: 768px) {
-    .mobile-menu-btn {
-        display: block;
-    }
-    
     .sidebar {
         display: none;
         position: fixed;
@@ -42,11 +38,51 @@ input[type="date"] {
         height: 100vh;
         transform: translateX(-100%);
         transition: transform 0.3s ease;
+        padding: 20px 0; /* Добавим отступы */
     }
     
     .sidebar.active {
         display: flex;
         transform: translateX(0);
+    }
+    
+    .nav-links {
+        display: flex;
+        flex-direction: column; /* Меняем на колонку */
+        flex-wrap: nowrap; /* Убираем перенос */
+        justify-content: flex-start; /* Выравниваем по верху */
+        width: 100%; /* Занимаем всю ширину */
+        padding: 0 15px; /* Добавляем отступы по бокам */
+    }
+    
+    .nav-link {
+        padding: 12px 15px; /* Увеличиваем отступы */
+        font-size: 16px; /* Увеличиваем размер шрифта */
+        margin: 2px 0; /* Добавляем небольшие отступы между пунктами */
+        border-radius: 4px; /* Скругляем углы */
+        text-align: left; /* Выравниваем текст по левому краю */
+    }
+    
+    .logout-btn {
+        margin: 15px auto; /* Увеличиваем отступы */
+        width: calc(100% - 30px); /* Учитываем отступы */
+        text-align: center; /* Центрируем текст */
+    }
+    
+    .mobile-menu-btn {
+        display: block;
+        position: fixed;
+        top: 10px;
+        left: 10px;
+        z-index: 1000;
+        background: #2c3e50;
+        color: white;
+        border: none;
+        font-size: 24px;
+        width: 40px;
+        height: 40px;
+        border-radius: 4px;
+        cursor: pointer;
     }
 }
 @media (max-width: 768px) {
